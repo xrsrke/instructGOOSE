@@ -12,7 +12,7 @@ from einops import rearrange
 
 from .utils import load_yaml
 
-# %% ../nbs/03_reward_model.ipynb 5
+# %% ../nbs/03_reward_model.ipynb 6
 class RewardModel(nn.Module):
     def __init__(self, checkpoint: str, dropout: float = 0.1):
         super().__init__()
@@ -20,26 +20,11 @@ class RewardModel(nn.Module):
         self.model = AutoModel.from_pretrained(checkpoint)
         
         config = self.model.config
-        # last_hidden_state = config.n_possitions
         n_embed = config.n_embd
         
         # custom head
         self.dropout = nn.Dropout(dropout)
         self.reward_head = nn.Linear(n_embed, 1)
-    
-    def compute_policy_shift_loss(self, current_policy_dist, old_policy_dist):
-        assert current_policy_dist.sum(dim=-1) == 1
-        assert old_policy_dist.sum(dim=-1) == 1
-        
-        kl_loss = nn.KLDivLoss()
-        
-        return kl_loss(current_policy_dist.log(), old_policy_dist)
-    
-    def compute_reward_value(self, prompt: str):
-        inputs = self.tokenizer(prompt, return_tensors="pt")
-    
-    def compute_loss(self):
-        loss_policy_shift = self.compute_policy_shift_loss()
         
     def forward(self, input_ids: torch.Tensor, attention_mask: torch.Tensor):
         last_hidden_state = self.model(
@@ -52,16 +37,16 @@ class RewardModel(nn.Module):
                 
         # output = rearrange(output, 'b 1 t 1 -> b t')
         # for eacb item in the batch
-        # chose the hidden state of the last token as a reward!
+        # choose the hidden state of the last token as a reward!
         reward_scalar = output[:, -1, 0]
         
         return reward_scalar
 
-# %% ../nbs/03_reward_model.ipynb 9
+# %% ../nbs/03_reward_model.ipynb 10
 class RewardLoss(nn.Module):
     def forward(self, chosen_reward: torch.Tensor, rejected_rewards: torch.Tensor):
         assert len(chosen_reward) == len(rejected_rewards)
         batch_size = len(chosen_reward)
         
-        log_difference = F.sigmoid(chosen_reward - rejected_rewards)
-        return -log_difference.mean() / batch_size
+        prob = F.sigmoid(chosen_reward - rejected_rewards)
+        return -prob.mean() / batch_size
