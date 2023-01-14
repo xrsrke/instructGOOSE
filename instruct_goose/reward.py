@@ -44,9 +44,9 @@ class RewardModel(nn.Module):
 
 # %% ../nbs/03_reward_model.ipynb 10
 class RewardLoss(nn.Module):
-    def forward(self, chosen_reward: torch.Tensor, rejected_rewards: torch.Tensor):
-        assert len(chosen_reward) == len(rejected_rewards)
-        batch_size = len(chosen_reward)
+    def forward(self, chosen_rewards: torch.Tensor, rejected_rewards: torch.Tensor):
+        assert len(chosen_rewards) == len(rejected_rewards)
+        batch_size = len(chosen_rewards)
         
-        prob = F.sigmoid(chosen_reward - rejected_rewards)
-        return -prob.mean() / batch_size
+        probs = F.sigmoid(chosen_rewards - rejected_rewards, dim=-1)
+        return -probs.mean() / batch_size
