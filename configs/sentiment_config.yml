@@ -1,0 +1,31 @@
+train:
+  seq_length: 1024
+  epochs: 20
+
+
+model:
+  model_path: "lvwerra/distilbert-imdb"
+  tokenizer_path: "lvwerra/distilbert-imdb"
+
+reward_model:
+  model_path: "gpt2"
+  tokenizer_path: "gpt2"
+  last_hidden_state: 768
+  pdropout: 0.1
+
+reward_data:
+  data_path: "Dahoas/rm-static"
+  batch_size: 64
+
+ppo:
+  eps: 0.01
+
+optimizer:
+  name: "adamw"
+  kwargs:
+    lr: 1.0e-4
+    betas: [0.9, 0.95]
+    eps: 1.0e-8
+    weight_decay: 1.0e-6
+
+data_path: ""

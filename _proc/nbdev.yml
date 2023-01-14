@@ -1,0 +1,9 @@
+project:
+  output-dir: _docs
+
+website:
+  title: "instruct_goose"
+  site-url: "https://xrsrke.github.io/instructGOOSE"
+  description: "Implementation of Reinforcement Learning from Human Feedback (RLHF)"
+  repo-branch: main
+  repo-url: "https://github.com/xrsrke/instructGOOSE"
