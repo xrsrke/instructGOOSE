@@ -130,3 +130,5 @@ dmypy.json
 
 .vscode
 _proc
+drafts
+drafts/*

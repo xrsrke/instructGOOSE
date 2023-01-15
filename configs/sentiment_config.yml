@@ -4,8 +4,11 @@ train:
 
 
 model:
-  model_path: "lvwerra/distilbert-imdb"
-  tokenizer_path: "lvwerra/distilbert-imdb"
+  model_path: "mrm8488/bert-mini2bert-mini-finetuned-cnn_daily_mail-summarization"
+  tokenizer_path: "mrm8488/bert-mini2bert-mini-finetuned-cnn_daily_mail-summarization"
+
+agent_data:
+  data_path: "CarperAI/openai_summarize_comparisons"
 
 reward_model:
   model_path: "gpt2"
@@ -14,7 +17,8 @@ reward_model:
   pdropout: 0.1
 
 reward_data:
-  data_path: "Dahoas/rm-static"
+  # data_path: "Dahoas/rm-static"
+  data_path: "CarperAI/openai_summarize_comparisons"
   batch_size: 64
 
 ppo:
