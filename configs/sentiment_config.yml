@@ -23,6 +23,8 @@ reward_data:
 
 ppo:
   eps: 0.01
+  ent_coef: 0.01
+  vf_coef: 0.5
 
 optimizer:
   name: "adamw"

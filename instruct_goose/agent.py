@@ -4,30 +4,62 @@
 __all__ = ['Agent', 'AgentLoss', 'AgentObjective', 'LitAgent']
 
 # %% ../nbs/08_agent.ipynb 3
-from typing import Callable
+from typing import Callable, Tuple
 
 import torch
 from torch import nn
 import torch.nn.functional as F
+from torch.distributions import Categorical
+
 from transformers import AutoModel
 import pytorch_lightning as pl 
+from torchtyping import TensorType
 
 # %% ../nbs/08_agent.ipynb 4
 class Agent(nn.Module):
-    def __init__(self, checkpoint):
+    def __init__(self, checkpoint: str):
         super().__init__()
-        self.model = AutoModel.from_pretrained(checkpoint)
+        
+        self.policy_network = AutoModel.from_pretrained(checkpoint)
+        self.value_network = nn.Sequential(
+            nn.Linear(512, 256),
+            nn.ReLU(),
+            nn.Linear(256, 256),
+            nn.ReLU(),
+            nn.Linear(256, 1)
+        )
     
-    def forward(self, input_ids: torch.Tensor, attention_mask: torch.Tensor):
-        output = self.model.generate(input_ids, attention_mask=attention_mask)
-        return output
+    def get_value(self, input_ids: TensorType["batch_size", "seq_len"]) -> TensorType["batch_size", 1]:
+        """Get predicted reward value for a given input.
+        """
+        return self.value_network(input_ids)
+    
+    def forward(
+        self, input_ids: torch.Tensor, attention_mask: torch.Tensor
+    ) -> Tuple[
+        TensorType["batch_size", "seq_len", "vocab_size"],
+        TensorType["batch_size", "seq_len", "vocab_size"],
+        TensorType["batch_size", "seq_len"],
+        TensorType["batch_size", 1]
+    ]:
+        action_logits = self.policy_network.generate(input_ids, attention_mask=attention_mask)
+        action_probs = F.softmax(action_logits, dim=-1)
+                
+        action_logprobs = action_probs.log()
+        
+        action_dist = Categorical(action_probs)
+        entropy = action_dist.entropy()
+        
+        value = self.get_value(input_ids)
+        
+        return action_logits, action_logprobs, entropy, value
 
-# %% ../nbs/08_agent.ipynb 6
+# %% ../nbs/08_agent.ipynb 5
 class AgentLoss(nn.Module):
     def __init__(self):
         super().__init__()
     
-    def forward(self, chosen_rewards, rejected_reward):
+    def forward(self, action_logits, rejected_reward):
         pass
 
 # %% ../nbs/08_agent.ipynb 7
@@ -40,8 +72,10 @@ class AgentObjective(nn.Module):
         self.model = model
         self.sft_model = sft_model
         self.reward_model = reward_model
+        self.gamma = gamma
+        self.beta = beta
         
-    def forward(self, input_ids, attention_mask):
+    def forward(self, input_ids: TensorType["batch", "seq_len", "n_dim"], attention_mask):
         
         model_logits = self.model(input_ids, attention_mask)
         # TODO: implement these

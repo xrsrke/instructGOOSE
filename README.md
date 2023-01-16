@@ -6,6 +6,13 @@ InstructGoose
 Paper: InstructGPT - [Training language models to follow instructions
 with human feedback](https://arxiv.org/abs/2203.02155)
 
+### Questions
+
+- In the context of RLHF, how to calculate the $L_t^{V F}(\theta)$,
+  - Like it’s a function of the PPO agent uses to predict how much
+    reward it gets if generates the sequence?
+- Does the RL model and the SFT model use the same tokenizer? Yes
+
 ## Install
 
 ``` sh
