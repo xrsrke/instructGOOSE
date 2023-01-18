@@ -11,8 +11,8 @@ with human feedback](https://arxiv.org/abs/2203.02155)
 - In the context of RLHF, how to calculate the $L_t^{V F}(\theta)$,
   - Like it’s a function of the PPO agent uses to predict how much
     reward it gets if generates the sequence?
-- Does the RL model and the SFT model use the same tokenizer? Yes
-- I don’t know how to returns the logit of the generation model
+- ~~Does the RL model and the SFT model use the same tokenizer? Yes~~
+- ~~I don’t know how to returns the logit of the generation model~~
 
 ## Install
 
