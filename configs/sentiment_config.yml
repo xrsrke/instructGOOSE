@@ -4,8 +4,8 @@ train:
 
 
 model:
-  model_path: "mrm8488/bert-mini2bert-mini-finetuned-cnn_daily_mail-summarization"
-  tokenizer_path: "mrm8488/bert-mini2bert-mini-finetuned-cnn_daily_mail-summarization"
+  model_path: "distilgpt2"
+  tokenizer_path: "distilgpt2"
 
 agent_data:
   data_path: "CarperAI/openai_summarize_comparisons"

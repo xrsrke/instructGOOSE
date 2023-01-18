@@ -12,6 +12,7 @@ with human feedback](https://arxiv.org/abs/2203.02155)
   - Like it’s a function of the PPO agent uses to predict how much
     reward it gets if generates the sequence?
 - Does the RL model and the SFT model use the same tokenizer? Yes
+- I don’t know how to returns the logit of the generation model
 
 ## Install
 
@@ -28,3 +29,5 @@ I used these resources to implement this
   function from https://github.com/Dahoas/reward-modeling
 - Learned how to build a dataset to train reward model:
   https://wandb.ai/carperai/summarize_RLHF/reports/Implementing-RLHF-Learning-to-Summarize-with-trlX–VmlldzozMzAwODM2
+- Learned how to add value head in PPO agent:
+  https://github.com/lvwerra/trl

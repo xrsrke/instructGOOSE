@@ -17,22 +17,31 @@ from torchtyping import TensorType
 
 # %% ../nbs/08_agent.ipynb 4
 class Agent(nn.Module):
-    def __init__(self, checkpoint: str):
+    def __init__(self, model: Callable):
+        """Initialize the agent.
+
+        Args:
+            n_observations (int): The vocab size
+            model (Callable): The pre-trained language model
+        """
         super().__init__()
         
-        self.policy_network = AutoModel.from_pretrained(checkpoint)
+        n_embd = model.config.n_embd
+
+        self.policy_network = model        
         self.value_network = nn.Sequential(
-            nn.Linear(512, 256),
+            nn.Linear(n_embd, 256),
             nn.ReLU(),
             nn.Linear(256, 256),
             nn.ReLU(),
-            nn.Linear(256, 1)
+            nn.Linear(256, 1),
+            nn.Tanh()
         )
     
-    def get_value(self, input_ids: TensorType["batch_size", "seq_len"]) -> TensorType["batch_size", 1]:
-        """Get predicted reward value for a given input.
-        """
-        return self.value_network(input_ids)
+    def get_value(
+        self, hidden_state: TensorType["batch_size", "seq_len", "n_embd"]
+    ) -> TensorType["batch_size", 1]:
+        return self.value_network(hidden_state)[:, -1, :]
     
     def forward(
         self, input_ids: torch.Tensor, attention_mask: torch.Tensor
@@ -42,17 +51,24 @@ class Agent(nn.Module):
         TensorType["batch_size", "seq_len"],
         TensorType["batch_size", 1]
     ]:
-        action_logits = self.policy_network.generate(input_ids, attention_mask=attention_mask)
-        action_probs = F.softmax(action_logits, dim=-1)
-                
-        action_logprobs = action_probs.log()
+        base_output = self.policy_network(
+            input_ids, attention_mask=attention_mask,
+            output_hidden_states=True
+        )
         
-        action_dist = Categorical(action_probs)
+        last_hidden_state = base_output.hidden_states[-1]
+        logits = base_output.logits
+        probs = F.softmax(logits, dim=-1)
+                
+        logprobs = probs.log()
+        
+        action_dist = Categorical(probs=probs)
         entropy = action_dist.entropy()
         
-        value = self.get_value(input_ids)
+        # predicted reward value
+        value = self.value_network(last_hidden_state)[:, -1, :]
         
-        return action_logits, action_logprobs, entropy, value
+        return logits, logprobs, entropy, value
 
 # %% ../nbs/08_agent.ipynb 5
 class AgentLoss(nn.Module):

@@ -46,6 +46,7 @@ def reward_tokenizer(default_config):
 
 
 #### RL MODEL
+
 @pytest.fixture
 def small_prompt_dataset(default_config):
     dataset_checkpoint = default_config["agent_data"]["data_path"]

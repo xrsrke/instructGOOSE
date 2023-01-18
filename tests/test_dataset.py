@@ -6,7 +6,6 @@ from instruct_goose.dataset import PairDataset, PromptDataset
 def test_create_pair_dataset(small_reward_dataset, reward_tokenizer):
     # max_length = reward_tokenizer.model_max_length
     max_length = 512
-
     pair_dataset = PairDataset(small_reward_dataset, reward_tokenizer, max_length)
 
     assert len(pair_dataset) > 0
