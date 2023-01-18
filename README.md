@@ -17,7 +17,7 @@ with human feedback](https://arxiv.org/abs/2203.02155)
 ## Install
 
 ``` sh
-pip install instruct_goose
+pip install instruct-goose
 ```
 
 ### Resources
