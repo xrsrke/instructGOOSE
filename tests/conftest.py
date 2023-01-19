@@ -2,7 +2,7 @@ import os
 
 import pytest
 from torch.utils.data import random_split
-from transformers import AutoTokenizer
+from transformers import AutoTokenizer, AutoModelForCausalLM
 from datasets import load_dataset
 from dotenv import load_dotenv
 load_dotenv()
@@ -56,8 +56,14 @@ def small_prompt_dataset(default_config):
     return small_dataset
 
 @pytest.fixture
+def agent_model(default_config):
+    model_checkpoint = default_config["model"]["model_path"]
+    model = AutoModelForCausalLM.from_pretrained(model_checkpoint)
+    return model
+
+@pytest.fixture
 def agent_tokenizer(default_config):
     agent_checkpoint = default_config["model"]["tokenizer_path"]
     tokenizer = AutoTokenizer.from_pretrained(agent_checkpoint)
-    # tokenizer.pad_token = tokenizer.eos_token
+    tokenizer.pad_token = tokenizer.eos_token
     return tokenizer

@@ -57,7 +57,9 @@ class Agent(nn.Module):
         )
         
         last_hidden_state = base_output.hidden_states[-1]
-        logits = base_output.logits
+        # takes the logit of the last token
+        # for each sequence in the batch
+        logits = base_output.logits[:, -1, :]
         probs = F.softmax(logits, dim=-1)
                 
         logprobs = probs.log()
@@ -66,11 +68,11 @@ class Agent(nn.Module):
         entropy = action_dist.entropy()
         
         # predicted reward value
-        value = self.value_network(last_hidden_state)[:, -1, :]
+        value = self.get_value(last_hidden_state).squeeze(-1)
         
         return logits, logprobs, entropy, value
 
-# %% ../nbs/08_agent.ipynb 5
+# %% ../nbs/08_agent.ipynb 10
 class AgentLoss(nn.Module):
     def __init__(self):
         super().__init__()
@@ -78,7 +80,7 @@ class AgentLoss(nn.Module):
     def forward(self, action_logits, rejected_reward):
         pass
 
-# %% ../nbs/08_agent.ipynb 7
+# %% ../nbs/08_agent.ipynb 12
 class AgentObjective(nn.Module):
     def __init__(
         self, model: Callable, sft_model: Callable, reward_model: Callable,
@@ -114,7 +116,7 @@ class AgentObjective(nn.Module):
         return objective
         
 
-# %% ../nbs/08_agent.ipynb 8
+# %% ../nbs/08_agent.ipynb 13
 class LitAgent(pl.LightningModule):
     def __init__(self, model: Callable, loss_func: Callable):
         super().__init__()
