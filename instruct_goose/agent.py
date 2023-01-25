@@ -4,7 +4,7 @@
 __all__ = ['Agent', 'AgentLoss', 'AgentObjective', 'LitAgent']
 
 # %% ../nbs/08_agent.ipynb 3
-from typing import Callable, Tuple
+from typing import Callable, Tuple, List
 
 import torch
 from torch import nn
@@ -28,6 +28,7 @@ class Agent(nn.Module):
         
         n_embd = model.config.n_embd
 
+        self.current_tokens: List[int] = []
         self.policy_network = model        
         self.value_network = nn.Sequential(
             nn.Linear(n_embd, 256),
@@ -42,6 +43,10 @@ class Agent(nn.Module):
         self, hidden_state: TensorType["batch_size", "seq_len", "n_embd"]
     ) -> TensorType["batch_size", 1]:
         return self.value_network(hidden_state)[:, -1, :]
+    
+    def add_current_tokens(self, token_id: int) -> List[int]:
+        self.current_tokens.append(token_id)
+        return self.current_tokens
     
     def forward(
         self, input_ids: torch.Tensor, attention_mask: torch.Tensor
@@ -72,7 +77,7 @@ class Agent(nn.Module):
         
         return logits, logprobs, entropy, value
 
-# %% ../nbs/08_agent.ipynb 10
+# %% ../nbs/08_agent.ipynb 5
 class AgentLoss(nn.Module):
     def __init__(self):
         super().__init__()
@@ -80,7 +85,7 @@ class AgentLoss(nn.Module):
     def forward(self, action_logits, rejected_reward):
         pass
 
-# %% ../nbs/08_agent.ipynb 12
+# %% ../nbs/08_agent.ipynb 7
 class AgentObjective(nn.Module):
     def __init__(
         self, model: Callable, sft_model: Callable, reward_model: Callable,
@@ -116,7 +121,7 @@ class AgentObjective(nn.Module):
         return objective
         
 
-# %% ../nbs/08_agent.ipynb 13
+# %% ../nbs/08_agent.ipynb 8
 class LitAgent(pl.LightningModule):
     def __init__(self, model: Callable, loss_func: Callable):
         super().__init__()

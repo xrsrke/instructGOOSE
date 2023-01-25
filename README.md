@@ -13,6 +13,9 @@ with human feedback](https://arxiv.org/abs/2203.02155)
     reward it gets if generates the sequence?
 - ~~Does the RL model and the SFT model use the same tokenizer? Yes~~
 - ~~I don’t know how to returns the logit of the generation model~~
+- Does the PPO Agent (Language Model) has a value network just like the
+  regular PPO Agent?
+- I don’t understand how to calculate the advantage in PPO
 
 ## Install
 
@@ -31,3 +34,7 @@ I used these resources to implement this
   https://wandb.ai/carperai/summarize_RLHF/reports/Implementing-RLHF-Learning-to-Summarize-with-trlX–VmlldzozMzAwODM2
 - Learned how to add value head in PPO agent:
   https://github.com/lvwerra/trl
+- Learned how to calculate the loss of PPO agent:
+  https://github.com/lvwerra/trl/blob/main/trl/trainer/ppo_trainer.py
+- Learned how to use PPO to train RLHF agent:
+  https://github.com/voidful/TextRL
