@@ -15,7 +15,7 @@ from gymnasium import Env
 class TextEnv(gym.Env):
     def __init__(
         self, model: Callable, tokenizer: Callable,
-        observation_space: List[int], context_length: int=1024
+        observation_input: List[int], context_length: int=1024
     ):
         """Initialize the environment.
 
@@ -23,7 +23,7 @@ class TextEnv(gym.Env):
             model (_type_): The RL-based language model
             tokenizer (_type_): The tokenizer of the RL-based language model
             observation_input (list, optional): The list of all possible prompts.
-            max_length (int, optional): The max context length of the RL-based language model . Defaults to 100.
+            context_length (int, optional): The max context length of the RL-based language model . Defaults to 1024.
         """
 
         self.model = model
@@ -33,8 +33,16 @@ class TextEnv(gym.Env):
         vocab_ids = [token_id for text, token_id in tokenizer.vocab.items()]
         self.action_space = gym.spaces.Discrete(len(vocab_ids))
         self.actions = vocab_ids
-        self.observation_space: List = observation_space
-            
+        
+        # TODO: add support a batch of observation space
+        # currently only support one prompt
+        self.observation_input = observation_input
+        self.input_token_ids: List[int] = []
+        self.predicted_token_ids: List[int] = []
+    
+    def is_in_action_space(self, action: int) -> bool:
+        return True if action in self.actions else False
+
     def is_token_end(self, token_id: int) -> bool:
         end_tokens = [self.tokenizer.eos_token_id, self.tokenizer.sep_token_id]
         return True if token_id in end_tokens else False
@@ -44,41 +52,54 @@ class TextEnv(gym.Env):
         return True if n_tokens >= self.context_length else False
 
     def _add_predicted_token(self, token_id: int):
-        self.predicted_tokens.append(token_id)
+        self.predicted_token_ids.append(token_id)
         
     def step(self, action: int) -> Tuple[
         TensorType["seq_len", "n_embd"],
         int, bool, bool, dict, bool
     ]:
+        assert self.is_in_action_space(action) == True
+        
         terminated = False
         truncated = False
         info = {}
         
-        if self.is_token_end(action) or self.is_max_context_length(self.input_item):
+        if self.is_token_end(action) or self.is_max_context_length(self.input_token_ids):
             done = True
-            reward = self._get_reward(self.predicted_tokens)
+            reward = self._get_reward(self.predicted_token_ids)
         else:
             done = False
             reward = 0
             self._add_predicted_token(action)
         
-        next_observation = self._get_obs(action)
+        next_observation = self._get_obs()
         
         return next_observation, reward, terminated, truncated, info, done
     
     def _get_reward(self, action: int):
         raise Exception("Write your own reward function!")
     
-    def _get_obs(self, action: int):
-        inputs = torch.cat([self.current_input, torch.tensor([action])])
+    def _get_obs(self):
+        """Return the current observation of the environment.
+
+        Returns:
+            _type_: _description_
+        """
+        input_token_ids = torch.tensor(self.input_token_ids, dtype=torch.int)
+        predicted_token_ids = torch.tensor(self.predicted_token_ids, dtype=torch.int)
+        
+        input_ids = torch.cat([input_token_ids, predicted_token_ids])
         output = self.model(
-            input_ids=inputs,
+            input_ids=input_ids,
+            output_hidden_states=True,
         )
+        last_hidden_state = output.hidden_states[-1]
+        return last_hidden_state
     
     def reset(self) -> TensorType["seq_len"]:
         # the current input prompts's token_ids
-        self.input_tokens: TensorType["seq_len"] = torch.tensor([])
+        self.input_token_ids: List[int] = self.observation_input
         # the current generated token_ids
-        self.predicted_tokens: TensorType["seq_len"] = torch.tensor([])
+        self.predicted_token_ids: List[int] = []
 
-        return self.predicted_tokens
+        return self._get_obs()
