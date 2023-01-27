@@ -4,4 +4,8 @@ on:  [workflow_dispatch, pull_request, push]
 jobs:
   test:
     runs-on: ubuntu-latest
-    steps: [uses: fastai/workflows/nbdev-ci@master]
+    steps:
+      - name: Test notebooks
+        uses: fastai/workflows/nbdev-ci@master
+      - name: Run pytest
+        run: pytest
