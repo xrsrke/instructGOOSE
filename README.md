@@ -6,7 +6,7 @@ InstructGoose - 🚧 WORK IN PROGRESS 🚧
 Paper: InstructGPT - [Training language models to follow instructions
 with human feedback](https://arxiv.org/abs/2203.02155)
 
-![image.png](index_files/figure-commonmark/027341ab-1-image.png)
+![image.png](index_files/figure-commonmark/25661c3f-1-image.png)
 
 ### Questions
 
@@ -52,11 +52,11 @@ I used these resources to implement this
 - Copied the
   [`load_yaml`](https://xrsrke.github.io/instructGOOSE/utils.html#load_yaml)
   function from https://github.com/Dahoas/reward-modeling
-- Learned how to build a dataset to train reward model:
+- How to build a dataset to train reward model:
   https://wandb.ai/carperai/summarize_RLHF/reports/Implementing-RLHF-Learning-to-Summarize-with-trlX–VmlldzozMzAwODM2
-- Learned how to add value head in PPO agent:
-  https://github.com/lvwerra/trl
-- Learned how to calculate the loss of PPO agent:
+- How to add value head in PPO agent: https://github.com/lvwerra/trl
+- How to calculate the loss of PPO agent:
   https://github.com/lvwerra/trl/blob/main/trl/trainer/ppo_trainer.py
-- Learned how to use PPO to train RLHF agent:
-  https://github.com/voidful/TextRL
+- How to use PPO to train RLHF agent: https://github.com/voidful/TextRL
+- How PPO works:
+  https://github.com/vwxyzjn/cleanrl/blob/master/cleanrl/ppo.py
