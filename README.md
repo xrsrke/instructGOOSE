@@ -6,7 +6,7 @@ InstructGoose - 🚧 WORK IN PROGRESS 🚧
 Paper: InstructGPT - [Training language models to follow instructions
 with human feedback](https://arxiv.org/abs/2203.02155)
 
-![image.png](index_files/figure-commonmark/449744c0-1-image.png)
+![image.png](index_files/figure-commonmark/28852bb5-1-image.png)
 
 ### Questions
 
@@ -24,6 +24,29 @@ with human feedback](https://arxiv.org/abs/2203.02155)
 ``` sh
 pip install instruct-goose
 ```
+
+### Train the RL-based language model
+
+``` python
+from transformers import AutoTokenizer, AutoModelForCausalLM
+from instruct_goose import RLHFTrainer, create_reference_model, RLHFConfig
+```
+
+    /Users/education/DATA/projects/ai/RLHF/instructGOOSE/env/lib/python3.10/site-packages/tqdm/auto.py:22: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
+      from .autonotebook import tqdm as notebook_tqdm
+
+``` python
+tokenizer = AutoTokenizer.from_pretrained("gpt2")
+model = AutoModelForCausalLM.from_pretrained("gpt2")
+ref_model = create_reference_model(model)
+```
+
+### Train the reward model
+
+### TODO
+
+- Add support batch inference for agent
+- Add support batch for RLHF trainer
 
 ### Resources
 

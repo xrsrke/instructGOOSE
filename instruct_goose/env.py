@@ -90,20 +90,28 @@ class TextEnv(gym.Env):
         Returns:
             _type_: _description_
         """
-        input_token_ids = torch.tensor(self.input_token_ids, dtype=torch.int)
-        predicted_token_ids = torch.tensor(self.predicted_token_ids, dtype=torch.int)
+        input_token_ids = self.input_token_ids
+        predicted_token_ids = self.predicted_token_ids
         
+        if isinstance(self.input_token_ids, torch.Tensor) is False:
+            input_token_ids = torch.tensor(self.input_token_ids, dtype=torch.int)
+            
+        if isinstance(self.predicted_token_ids, torch.Tensor) is False:
+            predicted_token_ids = torch.tensor(self.predicted_token_ids, dtype=torch.int)
+                
         input_ids = torch.cat([input_token_ids, predicted_token_ids])
-        output = self.model(
-            input_ids=input_ids,
-            output_hidden_states=True,
-        )
-        last_hidden_state = output.hidden_states[-1]
-        return last_hidden_state
+        # output = self.model(
+        #     input_ids=input_ids,
+        #     output_hidden_states=True,
+        # )
+        # last_hidden_state = output.hidden_states[-1]
+        # return last_hidden_state
+        return input_ids
     
     def reset(self) -> TensorType["seq_len"]:
         # the current input prompts's token_ids
-        self.input_token_ids: List[int] = self.observation_input
+        self.input_token_ids: List[int] = self.tokenizer(self.observation_input, return_tensors="pt")["input_ids"].tolist()[0]
+
         # the current generated token_ids
         self.predicted_token_ids: List[int] = []
 

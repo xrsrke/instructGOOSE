@@ -4,7 +4,7 @@
 __all__ = ['Agent', 'AgentLoss', 'AgentObjective', 'LitAgent']
 
 # %% ../nbs/08_agent.ipynb 3
-from typing import Callable, Tuple, List
+from typing import Callable, Tuple, List, Optional
 
 import torch
 from torch import nn
@@ -14,6 +14,8 @@ from torch.distributions import Categorical
 from transformers import AutoModel
 import pytorch_lightning as pl 
 from torchtyping import TensorType
+
+from .utils import ReplayBuffer
 
 # %% ../nbs/08_agent.ipynb 4
 class Agent(nn.Module):
@@ -38,6 +40,8 @@ class Agent(nn.Module):
             nn.Linear(256, 1),
             nn.Tanh()
         )
+        
+        self.replay_buffer = ReplayBuffer()
     
     def get_value(
         self, hidden_state: TensorType["batch_size", "seq_len", "n_embd"]
@@ -48,8 +52,11 @@ class Agent(nn.Module):
         self.current_tokens.append(token_id)
         return self.current_tokens
     
+    def observe(self):
+        self.replay_buffer.append()
+    
     def forward(
-        self, input_ids: torch.Tensor, attention_mask: torch.Tensor
+        self, input_ids: torch.Tensor, attention_mask: Optional[torch.Tensor] = None
     ) -> Tuple[
         TensorType["batch_size", "seq_len", "vocab_size"],
         TensorType["batch_size", "seq_len", "vocab_size"],

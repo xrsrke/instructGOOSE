@@ -15,14 +15,13 @@ from torchtyping import TensorType
 # %% ../nbs/08b_trainer.ipynb 6
 class RLHFTrainer:
     def __init__(
-        self, model: Callable, ref_model: Callable,
-        epsilon: float, ent_coef: float, vf_coef: float
+        self, model: Callable, ref_model: Callable, config
     ):
         self.model = model
         self.ref_model = ref_model
-        self.epsilon = epsilon
-        self.ent_coef = ent_coef
-        self.vf_coef = vf_coef
+        self.epsilon = config.epislon
+        self.ent_coef = config.ent_coef
+        self.vf_coef = config.vf_coef
 
     
     def loss(
