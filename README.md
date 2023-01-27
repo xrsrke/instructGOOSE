@@ -6,6 +6,8 @@ InstructGoose - 🚧 WORK IN PROGRESS 🚧
 Paper: InstructGPT - [Training language models to follow instructions
 with human feedback](https://arxiv.org/abs/2203.02155)
 
+![image.png](index_files/figure-commonmark/449744c0-1-image.png)
+
 ### Questions
 
 - In the context of RLHF, how to calculate the $L_t^{V F}(\theta)$,

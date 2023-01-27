@@ -52,6 +52,11 @@ class TextEnv(gym.Env):
         return True if n_tokens >= self.context_length else False
 
     def _add_predicted_token(self, token_id: int):
+        """Add the token_id to the list of current predicted token
+
+        Args:
+            token_id (int): A token
+        """
         self.predicted_token_ids.append(token_id)
         
     def step(self, action: int) -> Tuple[
