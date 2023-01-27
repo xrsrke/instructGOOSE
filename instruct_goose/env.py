@@ -98,14 +98,17 @@ class TextEnv(gym.Env):
             
         if isinstance(self.predicted_token_ids, torch.Tensor) is False:
             predicted_token_ids = torch.tensor(self.predicted_token_ids, dtype=torch.int)
-                
-        input_ids = torch.cat([input_token_ids, predicted_token_ids])
+        
+        # `transformer` do inference in batch, so add an extra dim for batch
+        input_ids = torch.cat([input_token_ids, predicted_token_ids]).unsqueeze(0)
+        
         # output = self.model(
         #     input_ids=input_ids,
         #     output_hidden_states=True,
         # )
         # last_hidden_state = output.hidden_states[-1]
         # return last_hidden_state
+    
         return input_ids
     
     def reset(self) -> TensorType["seq_len"]:

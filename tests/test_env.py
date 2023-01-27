@@ -28,7 +28,7 @@ def test_reset_env(env):
     assert env.input_token_ids != []
     assert env.predicted_token_ids == []
     assert isinstance(state, torch.Tensor)
-    assert state.ndim == 1
+    assert state.ndim == 2
 
 def test_take_action_in_text_env(env):
     # select the first action in 10th position
@@ -39,7 +39,7 @@ def test_take_action_in_text_env(env):
     state, reward, terminated, truncated, info, done = env.step(action)
 
     assert isinstance(state, torch.Tensor)
-    assert state.ndim == 1
+    assert state.ndim == 2
     assert reward == 0
     assert terminated == False
     assert isinstance(truncated, bool)
