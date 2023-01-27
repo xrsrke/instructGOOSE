@@ -30,7 +30,6 @@ class Agent(nn.Module):
         
         n_embd = model.config.n_embd
 
-        self.current_tokens: List[int] = []
         self.policy_network = model        
         self.value_network = nn.Sequential(
             nn.Linear(n_embd, 256),
@@ -73,16 +72,16 @@ class Agent(nn.Module):
         # for each sequence in the batch
         logits = base_output.logits[:, -1, :]
         probs = F.softmax(logits, dim=-1)
-                
-        logprobs = probs.log()
-        
+                        
         action_dist = Categorical(probs=probs)
+        action = action_dist.sample()
         entropy = action_dist.entropy()
+        log_prob = action_dist.log_prob(action)
         
         # predicted reward value
         value = self.get_value(last_hidden_state).squeeze(-1)
         
-        return logits, logprobs, entropy, value
+        return action, log_prob, entropy, value
 
 # %% ../nbs/08_agent.ipynb 5
 class AgentLoss(nn.Module):

@@ -1,4 +1,3 @@
-import pytest
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from instruct_goose.agent import Agent
@@ -18,12 +17,12 @@ def test_agent_take_action(agent_model, agent_tokenizer):
 
     agent = Agent(model=agent_model)
 
-    logits, logprobs, entropy, value = agent(
+    action, log_prob, entropy, value = agent(
         input_ids=inputs["input_ids"],
         attention_mask=inputs["attention_mask"]
     )
 
-    assert logits.shape == (1, 50257)
+    assert action.shape == (1,)
     assert value.shape == (1,)
-    assert logprobs.shape == (1, 50257)
+    assert log_prob.shape == (1,)
     assert entropy.shape == (1,)
