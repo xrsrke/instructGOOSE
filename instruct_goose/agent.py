@@ -29,6 +29,7 @@ class Agent(nn.Module):
         super().__init__()
         
         n_embd = model.config.n_embd
+        self.eos_token_id = model.config.eos_token_id
 
         self.policy_network = model        
         self.value_network = nn.Sequential(
@@ -39,8 +40,6 @@ class Agent(nn.Module):
             nn.Linear(256, 1),
             nn.Tanh()
         )
-        
-        self.replay_buffer = ReplayBuffer()
     
     def get_value(
         self, hidden_state: TensorType["batch_size", "seq_len", "n_embd"]
@@ -51,9 +50,6 @@ class Agent(nn.Module):
         self.current_tokens.append(token_id)
         return self.current_tokens
     
-    def observe(self):
-        self.replay_buffer.append()
-    
     def forward(
         self, input_ids: torch.Tensor, attention_mask: Optional[torch.Tensor] = None
     ) -> Tuple[
@@ -62,9 +58,15 @@ class Agent(nn.Module):
         TensorType["batch_size", "seq_len"],
         TensorType["batch_size", 1]
     ]:
+        
+        input_ids = torch.cat(
+            [input_ids.squeeze(dim=0), torch.tensor([self.eos_token_id])],
+            dim=-1
+        ).unsqueeze(dim=0)
+        
         base_output = self.policy_network(
             input_ids, attention_mask=attention_mask,
-            output_hidden_states=True
+            output_hidden_states=True,
         )
         
         last_hidden_state = base_output.hidden_states[-1]

@@ -7,6 +7,9 @@ __all__ = ['load_yaml', 'RLHFConfig', 'ReplayBuffer', 'create_reference_model']
 import yaml
 from copy import deepcopy
 from dataclasses import dataclass
+from typing import Union, List
+
+import torch
 
 # %% ../nbs/07_utils.ipynb 4
 def load_yaml(config_path):
@@ -25,20 +28,30 @@ class RLHFConfig:
 # %% ../nbs/07_utils.ipynb 6
 class ReplayBuffer:
     def __init__(self) -> None:
-        self.obs = []
-        self.log_probs = []
-        self.actions = []
-        self.advantages = []
-        self.returns = []
-        self.values = []
+        self.states = []
+        self.actions: List[int] = []
+        self.log_probs: List[Union[int, float]] = []
+        self.values: List[int, float] = []
+        self.rewards: List[int, float] = []
+        self.dones: List[bool] = []
     
-    def append(self, obs, log_prob, action, advantage, return_, value):
-        self.obs.append(obs)
-        self.log_probs.append(log_prob)
+    def append(
+        self, state, action: int, log_prob: Union[int, float],
+        value: Union[int, float], reward: Union[int, float], done: bool
+    ):
+        self.states.append(state)
         self.actions.append(action)
-        self.advantages.append(advantage)
-        self.returns.append(return_)
+        self.log_probs.append(log_prob)
         self.values.append(value)
+        self.rewards.append(reward)
+        self.dones.append(done)
+    
+    def sample(self):
+        n_samples = len(self.states)
+        idx = torch.randint(low=0, high=n_samples, size=(1,)).item()
+        
+        return self.states[idx], self.actions[idx], self.log_probs[idx],\
+               self.values[idx], self.rewards[idx], self.dones[idx]
 
 # %% ../nbs/07_utils.ipynb 8
 def create_reference_model(model):
