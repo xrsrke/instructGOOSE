@@ -49,6 +49,21 @@ class Agent(nn.Module):
     def add_current_tokens(self, token_id: int) -> List[int]:
         self.current_tokens.append(token_id)
         return self.current_tokens
+
+    def get_idx_from_logits(self, logits) -> int:
+        idx_pred = torch.argmax(logits, dim=-1)
+        return idx_pred
+    
+    def generate(
+        self,
+        input_ids: TensorType["batch_size", "seq_len"], attention_mask: Optional[TensorType["batch_size", "seq_len"]] = None,
+        **kwargs
+    ):
+        output = self.policy_network.generate(
+            input_ids=input_ids, attention_mask=attention_mask, **kwargs
+        )
+        
+        return output
     
     def forward(
         self, input_ids: torch.Tensor, attention_mask: Optional[torch.Tensor] = None
@@ -74,6 +89,8 @@ class Agent(nn.Module):
         # for each sequence in the batch
         logits = base_output.logits[:, -1, :]
         probs = F.softmax(logits, dim=-1)
+        
+        idx_pred = self.get_idx_from_logits(logits)
                         
         action_dist = Categorical(probs=probs)
         action = action_dist.sample()

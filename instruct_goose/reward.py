@@ -4,7 +4,7 @@
 __all__ = ['RewardModel', 'RewardLoss', 'LitRewardModel']
 
 # %% ../nbs/03_reward_model.ipynb 3
-from typing import Callable, Union
+from typing import Callable, Union, List
 
 import torch
 from torch import nn
@@ -13,6 +13,7 @@ from torch import optim
 import pytorch_lightning as pl 
 from transformers import AutoModel, AutoTokenizer
 from einops import rearrange
+from torchtyping import TensorType
 
 from .utils import load_yaml
 
@@ -21,23 +22,33 @@ class RewardModel(nn.Module):
     def __init__(self, checkpoint: str, dropout: float = 0.1):
         super().__init__()
         self.tokenizer = AutoTokenizer.from_pretrained(checkpoint)
+        self.tokenizer.pad_token = self.tokenizer.eos_token
         self.model = AutoModel.from_pretrained(checkpoint)
         
         config = self.model.config
         n_embed = config.n_embd
         
         # custom head
-        self.dropout = nn.Dropout(dropout)
-        self.reward_head = nn.Linear(n_embed, 1)
+        self.reward_head = nn.Sequential(
+            nn.Dropout(dropout),
+            nn.Linear(n_embed, 1),
+            nn.Sigmoid()
+        )
         
-    def forward(self, input_ids: torch.Tensor, attention_mask: torch.Tensor):
+    def forward(self, prompts: List[str]) -> TensorType["batch_size", 1]:
+        inputs = self.tokenizer(
+            prompts,
+            padding=True,
+            truncation=True,
+            return_tensors="pt"
+        )
+        
         last_hidden_state = self.model(
-            input_ids=input_ids,
-            attention_mask=attention_mask,
+            input_ids=inputs["input_ids"],
+            attention_mask=inputs["attention_mask"],
         ).last_hidden_state
         
-        output = self.dropout(last_hidden_state)
-        output = self.reward_head(output)
+        output = self.reward_head(last_hidden_state)
                 
         # output = rearrange(output, 'b 1 t 1 -> b t')
         # for eacb item in the batch
