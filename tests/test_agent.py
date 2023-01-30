@@ -47,15 +47,15 @@ def test_agent_forward_pass_with_attention_mask(agent_model, tokenized_prompts):
     agent = Agent(model=agent_model)
     n_prompt = tokenized_prompts["input_ids"].shape[0]
 
-    action, log_prob, entropy, value = agent(
+    actions, log_probs, entropies, values = agent(
         input_ids=tokenized_prompts["input_ids"],
         attention_mask=tokenized_prompts["attention_mask"]
     )
 
-    assert action.shape == (n_prompt,)
-    assert log_prob.shape == (3,)
-    assert entropy.shape == (3,)
-    assert value.shape == (3,)
+    assert actions.shape == (n_prompt,)
+    assert log_probs.shape == (3,)
+    assert entropies.shape == (3,)
+    assert values.shape == (3,)
 
 def test_agent_forward_pass_without_attention_mask(agent_model, tokenized_prompts):
     # the forward pass in the RLHF trainer don't include the attention mask

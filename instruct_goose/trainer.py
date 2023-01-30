@@ -7,7 +7,7 @@ __all__ = ['RLHFTrainer']
 import pytorch_lightning as pl 
 
 # %% ../nbs/08b_trainer.ipynb 4
-from typing import Callable
+from typing import Callable, Tuple
 
 import torch
 from torchtyping import TensorType
@@ -72,14 +72,14 @@ class RLHFTrainer:
         self,
         queries: TensorType["batch_size", "seq_len"],
         responses: TensorType["batch_size", "seq_len"]
-    ):
+    ) -> Tuple[TensorType["batch_size", ""]]:
         inputs = torch.cat([queries, responses], dim=1)
         
         with torch.no_grad():
-            _, logprobs, entropy, value = self.model(inputs)
+            _, logprobs, _, value = self.model(inputs)
             _, ref_logprob, _, _ = self.ref_model(inputs)
             
-        pass
+        return logprobs, ref_logprob, value
     
     def forward(
         self,
