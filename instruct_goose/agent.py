@@ -9,6 +9,7 @@ from typing import Callable, Tuple, List, Optional
 import torch
 from torch import nn
 import torch.nn.functional as F
+from torch.nn.utils.rnn import pad_sequence
 from torch.distributions import Categorical
 
 from transformers import AutoModel
@@ -74,10 +75,13 @@ class Agent(nn.Module):
         TensorType["batch_size", 1]
     ]:
         
-        input_ids = torch.cat(
-            [input_ids.squeeze(dim=0), torch.tensor([self.eos_token_id])],
-            dim=-1
-        ).unsqueeze(dim=0)
+        if attention_mask is None:
+            attention_mask = pad_sequence(input_ids, batch_first=True, padding_value=0)
+
+        # input_ids = torch.cat(
+        #     [input_ids.squeeze(dim=0), torch.tensor([self.eos_token_id])],
+        #     dim=-1
+        # ).unsqueeze(dim=0)
         
         base_output = self.policy_network(
             input_ids, attention_mask=attention_mask,

@@ -19,10 +19,9 @@ class RLHFTrainer:
     ):
         self.model = model
         self.ref_model = ref_model
-        self.epsilon = config.epislon
+        self.epsilon = config.epsilon
         self.ent_coef = config.ent_coef
         self.vf_coef = config.vf_coef
-
     
     def loss(
         self,
@@ -60,6 +59,27 @@ class RLHFTrainer:
         loss = pg_loss - self.ent_coef * entropy_loss + self.vf_coef * value_losses
         
         return loss
+
+    def step(
+        self,
+        queries: TensorType["batch_size", "seq_len"],
+        responses: TensorType["batch_size", "seq_len"],
+        rewards: TensorType["batch_size"],
+    ):
+        output = self.forward_batch(queries, responses)
+    
+    def forward_batch(
+        self,
+        queries: TensorType["batch_size", "seq_len"],
+        responses: TensorType["batch_size", "seq_len"]
+    ):
+        inputs = torch.cat([queries, responses], dim=1)
+        
+        with torch.no_grad():
+            _, logprobs, entropy, value = self.model(inputs)
+            _, ref_logprob, _, _ = self.ref_model(inputs)
+            
+        pass
     
     def forward(
         self,
