@@ -11,6 +11,7 @@ from typing import Callable, Tuple
 
 import torch
 from torchtyping import TensorType
+from einops import rearrange
 
 # %% ../nbs/08b_trainer.ipynb 6
 class RLHFTrainer:
@@ -23,63 +24,81 @@ class RLHFTrainer:
         self.ent_coef = config.ent_coef
         self.vf_coef = config.vf_coef
     
-    def loss(
+    @classmethod
+    def compute_advantage_and_return(
         self,
-        old_logprobs: torch.FloatTensor,
-        values: TensorType["batch_size"],
-        rewards: torch.FloatTensor,
-        query: torch.LongTensor,
-        response: torch.LongTensor,
-        model_input: torch.LongTensor,
-    ):
-        pass
-    
-    def loss(
-        self,
-        action_logprobs, entropy: TensorType["batch_size"], values: TensorType["batch_size"],
-        prev_logprobs
-    ) -> TensorType["batch_size", 1]:
-       
-        # ref_probs = F.softmax(ref_logits, dim=-1)
+        rewards: TensorType["batch_size"],
+        values: TensorType["batch_size"]
+    ) -> Tuple[TensorType["batch_size"], TensorType["batch_size"]]:
+        # copied from https://github.com/lvwerra/trl/blob/d2e8bcf8373726fb92d2110c500f7df6d0bd566d/trl/trainer/ppo_trainer.py#L686
+        # TODO: understand this!!!!
         
-        ratio = (action_logprobs - prev_logprobs).exp()
-        clipped_ratio = torch.clamp(ratio, min=1-self.epsilon, max=1+self.epsilon)
+        rewards = rearrange(rewards, 'b -> 1 b')
+        values = rearrange(values, 'b -> 1 b')
         
-        # TODO: Implement the advantages
-        advantages = None
+        lastgaelam = 0
+        advantages_reversed = []
+        gen_len = len(rewards)
         
-        unclipped_pg_loss = ratio * advantages
-        clipped_pg_loss = clipped_ratio * advantages
-        
-        pg_loss = torch.min(unclipped_pg_loss, clipped_pg_loss).mean()
-        
-        entropy_loss = entropy.mean()
-        value_losses = values.mean()
-        
-        loss = pg_loss - self.ent_coef * entropy_loss + self.vf_coef * value_losses
-        
-        return loss
+        gamma = 1
+        lam = 0.95
 
-    def step(
+        for t in reversed(range(gen_len)):
+            nextvalues = values[:, t + 1] if t < gen_len - 1 else 0.0
+            delta = rewards[:, t] + gamma * nextvalues - values[:, t]
+            lastgaelam = delta + gamma * lam * lastgaelam
+            advantages_reversed.append(lastgaelam)
+
+        advantages = torch.stack(advantages_reversed[::-1]).transpose(0, 1)
+        returns = advantages + values
+
+        advantages = rearrange(advantages, '1 b -> b')
+        returns = rearrange(returns, '1 b -> b')
+        
+        return advantages, returns
+
+    def compute_loss(
         self,
         queries: TensorType["batch_size", "seq_len"],
         responses: TensorType["batch_size", "seq_len"],
         rewards: TensorType["batch_size"],
-    ):
-        output = self.forward_batch(queries, responses)
+    ) -> TensorType["1"]:
+        logprobs, values, entropies, ref_logprobs = self.forward_batch(queries, responses)
+        # loss = self.loss(logprobs, ref_logprobs, values)
+        
+        ratio = (logprobs - ref_logprobs).exp()
+        clipped_ratio = torch.clamp(ratio, min=1-self.epsilon, max=1+self.epsilon)
+        
+        # TODO: write the advantages
+        # advantages = rewards
+        # returns = rewards
+        advantages, returns = self.compute_advantage_and_return(rewards, values)
+        
+        pg_loss_1 = ratio * advantages
+        pg_loss_2 = ratio * clipped_ratio
+        
+        pg_loss = torch.min(pg_loss_1, pg_loss_2).mean()
+        
+        value_loss = (values - returns).pow(2).mean()
+        
+        loss = pg_loss - self.ent_coef * entropies.mean() + self.vf_coef * value_loss
+        
+        return loss
     
     def forward_batch(
         self,
         queries: TensorType["batch_size", "seq_len"],
         responses: TensorType["batch_size", "seq_len"]
-    ) -> Tuple[TensorType["batch_size", ""]]:
+    ) -> Tuple[
+        TensorType["batch_size"], TensorType["batch_size"],
+        TensorType["batch_size"], TensorType["batch_size"]
+    ]:
         inputs = torch.cat([queries, responses], dim=1)
         
-        with torch.no_grad():
-            _, logprobs, _, value = self.model(inputs)
-            _, ref_logprob, _, _ = self.ref_model(inputs)
+        _, logprobs, entropy, value = self.model(inputs)
+        _, ref_logprob, _, _ = self.ref_model(inputs)
             
-        return logprobs, ref_logprob, value
+        return logprobs, entropy, value, ref_logprob
     
     def forward(
         self,

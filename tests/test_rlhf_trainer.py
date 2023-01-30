@@ -54,7 +54,16 @@ def test_create_rlhf_trainer(agent_model):
 #     assert isinstance(loss, torch.Tensor)
 #     assert objective.shape == (1,)
 
-def test_step_function_rlhf_trainer(agent_model, agent_tokenizer):
+def test_compute_advantage_and_return_rlhf_trainer():
+    rewards = torch.tensor([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    values = torch.tensor([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
+
+    advantages, returns = RLHFTrainer.compute_advantage_and_return(rewards, values)
+
+    assert advantages.shape == (1,)
+    assert returns.shape == (rewards.shape[-1],)
+
+def test_compute_loss_rlhf_trainer(agent_model, agent_tokenizer):
     config = RLHFConfig()
     model = Agent(agent_model)
     ref_model = create_reference_model(model)
@@ -73,10 +82,6 @@ def test_step_function_rlhf_trainer(agent_model, agent_tokenizer):
     response_input_ids = agent_tokenizer(responses, padding=True, truncation=True, return_tensors="pt")["input_ids"]
     rewards = torch.tensor([0.1, 0.9])
 
-    output = trainer.step(query_input_ids, response_input_ids, rewards)
+    loss = trainer.compute_loss(query_input_ids, response_input_ids, rewards)
 
-    assert output.logprobs.shape == (2, 1)
-    assert output.ref_logprob.shape == (2, 1)
-    assert output.entropy.shape == (2, 1)
-    assert output.values.shape == (2, 1)
-    assert output.loss.shape == (1,)
+    assert isinstance(loss.item(), (int, float))

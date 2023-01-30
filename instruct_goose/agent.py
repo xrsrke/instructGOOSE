@@ -75,13 +75,19 @@ class Agent(nn.Module):
         TensorType["batch_size", 1]
     ]:
         
-        if attention_mask is None:
-            attention_mask = pad_sequence(input_ids, batch_first=True, padding_value=0)
+        # if attention_mask is None:
+        #     attention_mask = pad_sequence(input_ids, batch_first=True, padding_value=0)
         
-        base_output = self.policy_network(
-            input_ids, attention_mask=attention_mask,
-            output_hidden_states=True,
-        )
+        if attention_mask is None:
+            base_output = self.policy_network(
+                input_ids,
+                output_hidden_states=True,
+            )
+        else:
+            base_output = self.policy_network(
+                input_ids, attention_mask=attention_mask,
+                output_hidden_states=True,
+            )
         
         last_hidden_state = base_output.hidden_states[-1]
         # takes the logit of the last token
@@ -94,12 +100,12 @@ class Agent(nn.Module):
         action_dist = Categorical(probs=probs)
         action = action_dist.sample()
         entropy = action_dist.entropy()
-        log_prob = action_dist.log_prob(action)
+        logprobs = action_dist.log_prob(action)
         
         # predicted reward value
         value = self.get_value(last_hidden_state).squeeze(-1)
         
-        return action, log_prob, entropy, value
+        return action, logprobs, entropy, value
 
 # %% ../nbs/08_agent.ipynb 5
 class AgentLoss(nn.Module):

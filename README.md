@@ -6,7 +6,7 @@ InstructGoose - 🚧 WORK IN PROGRESS 🚧
 Paper: InstructGPT - [Training language models to follow instructions
 with human feedback](https://arxiv.org/abs/2203.02155)
 
-![image.png](index_files/figure-commonmark/c6e3c073-1-image.png)
+![image.png](index_files/figure-commonmark/f6506e5e-1-image.png)
 
 ### Questions
 
@@ -60,3 +60,5 @@ I used these resources to implement this
 - How to use PPO to train RLHF agent: https://github.com/voidful/TextRL
 - How PPO works:
   https://github.com/vwxyzjn/cleanrl/blob/master/cleanrl/ppo.py
+- Copied the compute `advantages` and `returns` from `TLR`:
+  https://github.com/lvwerra/trl/blob/d2e8bcf8373726fb92d2110c500f7df6d0bd566d/trl/trainer/ppo_trainer.py#L686
