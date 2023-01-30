@@ -6,7 +6,7 @@ InstructGoose - 🚧 WORK IN PROGRESS 🚧
 Paper: InstructGPT - [Training language models to follow instructions
 with human feedback](https://arxiv.org/abs/2203.02155)
 
-![image.png](index_files/figure-commonmark/f6506e5e-1-image.png)
+![image.png](index_files/figure-commonmark/15a45fb3-1-image.png)
 
 ### Questions
 
@@ -27,18 +27,88 @@ pip install instruct-goose
 
 ### Train the RL-based language model
 
-``` python
-from transformers import AutoTokenizer, AutoModelForCausalLM
-from instruct_goose import RLHFTrainer, create_reference_model, RLHFConfig
-```
+**Step 1**: Load the pre-trained model and tokenizer
 
 ``` python
+from transformers import AutoTokenizer, AutoModelForCausalLM
+from datasets import load_dataset
+
+import torch
+from torch.utils.data import DataLoader
+from torch import optim
+
+from instruct_goose import Agent, RewardModel, RLHFTrainer, RLHFConfig, create_reference_model
+```
+
+    /Users/education/DATA/projects/ai/RLHF/instructGOOSE/env/lib/python3.10/site-packages/tqdm/auto.py:22: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
+      from .autonotebook import tqdm as notebook_tqdm
+
+**Step 1:** Load dataset
+
+``` python
+dataset = load_dataset("imdb", split="train")
+train_dataloader = DataLoader(dataset, batch_size=4, shuffle=True)
+```
+
+**Step 2**: Load the pre-trained model and tokenizer
+
+``` python
+model_base = AutoModelForCausalLM.from_pretrained("gpt2")
+reward_model = RewardModel("gpt2")
+
 tokenizer = AutoTokenizer.from_pretrained("gpt2")
-model = AutoModelForCausalLM.from_pretrained("gpt2")
+eos_token_id = tokenizer.eos_token_id
+tokenizer.pad_token = tokenizer.eos_token
+```
+
+**Step 3**: Create the RL-based language model agent and the reference
+model
+
+``` python
+model = Agent(model_base)
 ref_model = create_reference_model(model)
 ```
 
-### Train the reward model
+**Step 4**: Train it
+
+``` python
+max_new_tokens = 20
+generation_kwargs = {
+    "min_length":-1,
+    "top_k": 0.0,
+    "top_p": 1.0,
+    "do_sample": True,
+    "pad_token_id": tokenizer.eos_token_id,
+    "max_new_tokens": max_new_tokens
+}
+
+config = RLHFConfig()
+trainer = RLHFTrainer(model, ref_model, config)
+optimizer = optim.SGD(model.parameters(), lr=1e-3)
+```
+
+``` python
+for batch in train_dataloader:
+    inputs = tokenizer(batch["text"], padding=True, truncation=True, return_tensors="pt")
+    responses = model.generate(
+        inputs["input_ids"], attention_mask=inputs["attention_mask"],
+        **generation_kwargs
+    )
+    # extract the generated text
+    responses = responses[:, -max_new_tokens:]
+    
+    with torch.no_grad():
+        text_input_ids = torch.stack([torch.concat([q, r]) for q, r in zip(inputs["input_ids"], responses)], dim=0)
+        texts = tokenizer.batch_decode(text_input_ids, skip_special_tokens=True)
+        # evaluate from the reward model
+        rewards = reward_model(texts)
+    
+    loss = trainer.compute_loss(inputs["input_ids"], responses, rewards)
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
+    print(f"loss={loss}")
+```
 
 ### TODO
 
