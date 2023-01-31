@@ -6,18 +6,7 @@ InstructGoose - 🚧 WORK IN PROGRESS 🚧
 Paper: InstructGPT - [Training language models to follow instructions
 with human feedback](https://arxiv.org/abs/2203.02155)
 
-![image.png](index_files/figure-commonmark/91f38a76-1-image.png)
-
-### Questions
-
-- In the context of RLHF, how to calculate the $L_t^{V F}(\theta)$,
-  - Like it’s a function of the PPO agent uses to predict how much
-    reward it gets if generates the sequence?
-- ~~Does the RL model and the SFT model use the same tokenizer? Yes~~
-- ~~I don’t know how to returns the logit of the generation model~~
-- Does the PPO Agent (Language Model) has a value network just like the
-  regular PPO Agent?
-- I don’t understand how to calculate the advantage in PPO
+![image.png](index_files/figure-commonmark/e5c7aa80-1-image.png)
 
 ## Install
 
@@ -78,37 +67,53 @@ generation_kwargs = {
 }
 
 config = RLHFConfig()
+N_EPOCH = 100
 trainer = RLHFTrainer(model, ref_model, config)
 optimizer = optim.SGD(model.parameters(), lr=1e-3)
 ```
 
 ``` python
-for batch in train_dataloader:
-    inputs = tokenizer(batch["text"], padding=True, truncation=True, return_tensors="pt")
-    responses = model.generate(
-        inputs["input_ids"], attention_mask=inputs["attention_mask"],
-        **generation_kwargs
-    )
-    # extract the generated text
-    responses = responses[:, -max_new_tokens:]
-    
-    with torch.no_grad():
-        text_input_ids = torch.stack([torch.concat([q, r]) for q, r in zip(inputs["input_ids"], responses)], dim=0)
-        texts = tokenizer.batch_decode(text_input_ids, skip_special_tokens=True)
+for epoch in range(N_EPOCH):
+    for batch in train_dataloader:
+        inputs = tokenizer(batch["text"], padding=True, truncation=True, return_tensors="pt")
+        responses = model.generate(
+            inputs["input_ids"], attention_mask=inputs["attention_mask"],
+            **generation_kwargs
+        )
+        
+        # extract the generated text
+        responses = responses[:, -max_new_tokens:]
+        
         # evaluate from the reward model
-        rewards = reward_model(texts)
-    
-    loss = trainer.compute_loss(inputs["input_ids"], responses, rewards)
-    optimizer.zero_grad()
-    loss.backward()
-    optimizer.step()
-    print(f"loss={loss}")
+        with torch.no_grad():
+            text_input_ids = torch.stack([torch.concat([q, r]) for q, r in zip(inputs["input_ids"], responses)], dim=0)
+            texts = tokenizer.batch_decode(text_input_ids, skip_special_tokens=True)
+            rewards = reward_model(texts)
+        
+        # calculate PPO loss
+        loss = trainer.compute_loss(inputs["input_ids"], responses, rewards)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        print(f"loss={loss}")
 ```
 
 ### TODO
 
-- Add support batch inference for agent
-- Add support batch for RLHF trainer
+- Add support custom reward function
+- Add support custom environment
+- Add support non-transformers models
+
+### Questions
+
+- In the context of RLHF, how to calculate the $L_t^{V F}(\theta)$,
+  - Like it’s a function of the PPO agent uses to predict how much
+    reward it gets if generates the sequence?
+- ~~Does the RL model and the SFT model use the same tokenizer? Yes~~
+- ~~I don’t know how to returns the logit of the generation model~~
+- Does the PPO Agent (Language Model) has a value network just like the
+  regular PPO Agent?
+- I don’t understand how to calculate the advantage in PPO
 
 ### Resources
 
