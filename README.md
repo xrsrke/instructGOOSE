@@ -6,12 +6,22 @@ InstructGoose - 🚧 WORK IN PROGRESS 🚧
 Paper: InstructGPT - [Training language models to follow instructions
 with human feedback](https://arxiv.org/abs/2203.02155)
 
-![image.png](index_files/figure-commonmark/e5c7aa80-1-image.png)
+![image.png](index_files/figure-commonmark/62cea09e-1-image.png)
 
 ## Install
 
+Install from PipPy
+
 ``` sh
 pip install instruct-goose
+```
+
+Install directly from the source code
+
+``` sh
+git clone https://github.com/xrsrke/instructGOOSE.git
+cd instructGOOSE
+pip install -e .
 ```
 
 ### Train the RL-based language model
