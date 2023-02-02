@@ -127,9 +127,8 @@ for epoch in range(N_EPOCH):
 
 I used these resources to implement this
 
-- Copied the
-  [`load_yaml`](https://xrsrke.github.io/instructGOOSE/utils.html#load_yaml)
-  function from https://github.com/Dahoas/reward-modeling
+- Copied the `load_yaml` function from
+  https://github.com/Dahoas/reward-modeling
 - How to build a dataset to train reward model:
   https://wandb.ai/carperai/summarize_RLHF/reports/Implementing-RLHF-Learning-to-Summarize-with-trlX–VmlldzozMzAwODM2
 - How to add value head in PPO agent: https://github.com/lvwerra/trl
