@@ -1,4 +1,3 @@
-import os
 import pkg_resources
 
 from torch.utils.data import random_split

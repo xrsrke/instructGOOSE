@@ -8,4 +8,4 @@ jobs:
       - name: Test notebooks
         uses: fastai/workflows/nbdev-ci@master
       - name: Run pytest
-        run: pytest
+        run: pytest -v
