@@ -3,20 +3,23 @@
 # %% auto 0
 __all__ = ['RLHFTrainer']
 
-# %% ../nbs/08b_trainer.ipynb 3
+# %% ../nbs/08b_trainer.ipynb 4
 import pytorch_lightning as pl 
 
-# %% ../nbs/08b_trainer.ipynb 4
+# %% ../nbs/08b_trainer.ipynb 5
 from typing import Callable, Tuple
 
 import torch
 from torchtyping import TensorType
 from einops import rearrange
 
-# %% ../nbs/08b_trainer.ipynb 6
+# %% ../nbs/08b_trainer.ipynb 7
 class RLHFTrainer:
     def __init__(
-        self, model: Callable, ref_model: Callable, config
+        self,
+        model: Callable, # A pre-trained language model
+        ref_model: Callable, # A a reference model 
+        config
     ):
         self.model = model
         self.ref_model = ref_model
@@ -27,12 +30,12 @@ class RLHFTrainer:
     @classmethod
     def compute_advantage_and_return(
         self,
-        rewards: TensorType["batch_size"],
-        values: TensorType["batch_size"]
-    ) -> Tuple[TensorType["batch_size"], TensorType["batch_size"]]:
+        rewards: TensorType["batch_size"], # A list of reward values
+        values: TensorType["batch_size"] # A list of predicted values from agent's value network
+    ) -> Tuple[TensorType["batch_size"], TensorType["batch_size"]]: # The advantages and returns
+        """Calculate the advantages and returns."""
         # copied from https://github.com/lvwerra/trl/blob/d2e8bcf8373726fb92d2110c500f7df6d0bd566d/trl/trainer/ppo_trainer.py#L686
         # TODO: understand this!!!!
-        
         rewards = rearrange(rewards, 'b -> 1 b')
         values = rearrange(values, 'b -> 1 b')
         
@@ -63,7 +66,8 @@ class RLHFTrainer:
         responses: TensorType["batch_size", "seq_len"],
         rewards: TensorType["batch_size"],
     ) -> TensorType["1"]:
-        logprobs, values, entropies, ref_logprobs = self.forward_batch(queries, responses)
+        """Calculate PPO's loss."""
+        logprobs, values, entropies, ref_logprobs = self._forward_batch(queries, responses)
         # loss = self.loss(logprobs, ref_logprobs, values)
         
         ratio = (logprobs - ref_logprobs).exp()
@@ -85,7 +89,7 @@ class RLHFTrainer:
         
         return loss
     
-    def forward_batch(
+    def _forward_batch(
         self,
         queries: TensorType["batch_size", "seq_len"],
         responses: TensorType["batch_size", "seq_len"]
