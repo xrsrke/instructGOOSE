@@ -3,7 +3,7 @@
 # %% auto 0
 __all__ = ['Agent', 'AgentObjective']
 
-# %% ../nbs/08_agent.ipynb 3
+# %% ../nbs/08_agent.ipynb 4
 from typing import Callable, Tuple, List, Optional
 
 import torch
@@ -18,12 +18,14 @@ from torchtyping import TensorType
 
 from .utils import ReplayBuffer
 
-# %% ../nbs/08_agent.ipynb 4
+# %% ../nbs/08_agent.ipynb 6
 class Agent(nn.Module):
-    "The RL-based language model"
-    def __init__(self, model: Callable):
+    "The RL-based language model."
+    def __init__(
+        self,
+        model: Callable # a pre-trained `transformers` model
+    ):
         super().__init__()
-        
         n_embd = model.config.n_embd
         self.eos_token_id = model.config.eos_token_id
 
@@ -40,35 +42,31 @@ class Agent(nn.Module):
     def get_value(
         self, hidden_state: TensorType["batch_size", "seq_len", "n_embd"]
     ) -> TensorType["batch_size", 1]:
+        """Get value from the value network."""
         return self.value_network(hidden_state)[:, -1, :]
-    
-    def add_current_tokens(self, token_id: int) -> List[int]:
-        self.current_tokens.append(token_id)
-        return self.current_tokens
 
-    def get_idx_from_logits(self, logits) -> int:
-        idx_pred = torch.argmax(logits, dim=-1)
-        return idx_pred
-    
     def generate(
         self,
-        input_ids: TensorType["batch_size", "seq_len"], attention_mask: Optional[TensorType["batch_size", "seq_len"]] = None,
+        input_ids: TensorType["batch_size", "seq_len"],
+        attention_mask: Optional[TensorType["batch_size", "seq_len"]] = None,
         **kwargs
-    ):
+    ) -> TensorType["batch_size", "seq_len"]:
         output = self.policy_network.generate(
             input_ids=input_ids, attention_mask=attention_mask, **kwargs
         )
-        
         return output
     
     def forward(
-        self, input_ids: torch.Tensor, attention_mask: Optional[torch.Tensor] = None
+        self,
+        input_ids: TensorType["batch_size", "seq_len"], # input_ids
+        attention_mask: Optional[TensorType["batch_size, seq_len"]] = None
     ) -> Tuple[
         TensorType["batch_size", "seq_len", "vocab_size"],
         TensorType["batch_size", "seq_len", "vocab_size"],
         TensorType["batch_size", "seq_len"],
         TensorType["batch_size", 1]
-    ]:
+    ]: # action, logprobs, entropy, value
+        """_summary_"""
         if attention_mask is None:
             base_output = self.policy_network(
                 input_ids,
@@ -81,13 +79,12 @@ class Agent(nn.Module):
             )
         
         last_hidden_state = base_output.hidden_states[-1]
+        
         # takes the logit of the last token
         # for each sequence in the batch
         logits = base_output.logits[:, -1, :]
         probs = F.softmax(logits, dim=-1)
-        
-        idx_pred = self.get_idx_from_logits(logits)
-                        
+                                
         action_dist = Categorical(probs=probs)
         action = action_dist.sample()
         entropy = action_dist.entropy()
@@ -98,11 +95,16 @@ class Agent(nn.Module):
         
         return action, logprobs, entropy, value
 
-# %% ../nbs/08_agent.ipynb 6
+# %% ../nbs/08_agent.ipynb 12
 class AgentObjective(nn.Module):
+    """Agent objective."""
     def __init__(
-        self, model: Callable, sft_model: Callable, reward_model: Callable,
-        gamma: float, beta: float
+        self,
+        model: Callable, # the language model
+        sft_model: Callable, # the reference model
+        reward_model: Callable, # the reward model
+        gamma: float,
+        beta: float
     ):
         super().__init__()
         self.model = model
@@ -111,18 +113,20 @@ class AgentObjective(nn.Module):
         self.gamma = gamma
         self.beta = beta
         
-    def forward(self, input_ids: TensorType["batch", "seq_len", "n_dim"], attention_mask):
-        
+    def forward(
+        self,
+        input_ids: TensorType["batch_size", "seq_len"],
+        attention_mask: TensorType["batch_size", "seq_len"]
+    ) -> TensorType[1]: # A scalar objective value
+        """Calculate the objective value given the input ids and attention mask."""
         model_logits = self.model(input_ids, attention_mask)
-        # TODO: implement these
-        model_input_ids = None
-        model_attention_mask = None
+        
         model_dist = F.softmax(model_logits, dim=-1)
         
         sft_logits = self.sft_model(input_ids, attention_mask)
         sft_dist = F.softmax(sft_logits, dim=-1)
         
-        reward_score = self.reward_model(model_input_ids, model_attention_mask)
+        reward_score = self.reward_model(input_ids, attention_mask)
         
         ratio = torch.log(model_dist / sft_dist)
         
@@ -132,4 +136,3 @@ class AgentObjective(nn.Module):
         objective = (reward_score - self.beta*ratio).mean() + self.gamma * coherent.mean()
         
         return objective
-        

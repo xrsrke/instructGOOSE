@@ -46,7 +46,6 @@ class PairDataset(Dataset):
                 "input_ids": rejected_encoding["input_ids"],
                 "attention_mask": rejected_encoding["attention_mask"]
             })
-            
     
     def __len__(self) -> int:
         return len(self.chosen)
@@ -84,7 +83,6 @@ class PromptDataset(Dataset):
                 "attention_mask": prompt_encoding["attention_mask"]
             })
             
-    
     def __len__(self):
         return len(self.prompts)
 
