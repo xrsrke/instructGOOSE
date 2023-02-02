@@ -58,7 +58,7 @@ class Agent(nn.Module):
     
     def forward(
         self,
-        input_ids: TensorType["batch_size", "seq_len"], # input_ids
+        input_ids: TensorType["batch_size", "seq_len"],
         attention_mask: Optional[TensorType["batch_size, seq_len"]] = None
     ) -> Tuple[
         TensorType["batch_size", "seq_len", "vocab_size"],
