@@ -1,3 +1,25 @@
+Metadata-Version: 2.1
+Name: instruct-goose
+Version: 0.0.1
+Summary: Implementation of Reinforcement Learning from Human Feedback (RLHF)
+Home-page: https://github.com/xrsrke/instructGOOSE
+Author: xrsrke
+Author-email: xariusdrake@hotmail.com
+License: Apache Software License 2.0
+Keywords: nbdev jupyter notebook python
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Natural Language :: English
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: License :: OSI Approved :: Apache Software License
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+Provides-Extra: dev
+License-File: LICENSE
+
 InstructGoose - 🚧 WORK IN PROGRESS 🚧
 ================
 
@@ -6,20 +28,12 @@ InstructGoose - 🚧 WORK IN PROGRESS 🚧
 Paper: InstructGPT - [Training language models to follow instructions
 with human feedback](https://arxiv.org/abs/2203.02155)
 
-## Install
+![image.png](index_files/figure-commonmark/d4e1b661-1-image.png)
 
-Install from PipPy
+## Install
 
 ``` sh
 pip install instruct-goose
-```
-
-Install directly from the source code
-
-``` sh
-git clone https://github.com/xrsrke/instructGOOSE.git
-cd instructGOOSE
-pip install -e .
 ```
 
 ### Train the RL-based language model
@@ -108,9 +122,8 @@ for epoch in range(N_EPOCH):
 
 ### TODO
 
-- Add support custom reward function
-- Add support custom value function
-- Add support non-transformer models
+- Add support batch inference for agent
+- Add support batch for RLHF trainer
 
 ### Questions
 

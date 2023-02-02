@@ -1,0 +1,15 @@
+transformers
+datasets
+wandb
+pandas
+gymnasium
+pyyaml
+pytest
+tqdm
+python-dotenv
+einops
+torch
+pytorch-lightning
+torchtyping
+
+[dev]

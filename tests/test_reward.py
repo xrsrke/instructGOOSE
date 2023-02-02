@@ -1,6 +1,6 @@
 import torch
 
-from instruct_goose.reward import RewardModel, RewardLoss
+from instruct_goose.reward import RewardModel, PairwiseLoss
 
 
 def test_reward_model(default_config, reward_tokenizer):
@@ -12,7 +12,15 @@ def test_reward_model(default_config, reward_tokenizer):
         "this is suppose to be a good text"
     ]
 
-    rewards = reward_model(prompts=prompts)
+    inputs = reward_tokenizer(
+        prompts, padding=True, truncation=True,
+        return_tensors="pt"
+    )
+
+    rewards = reward_model(
+        input_ids=inputs["input_ids"],
+        attention_mask=inputs["attention_mask"],
+    )
 
     assert len(rewards) == len(prompts)
     assert isinstance(rewards[0].item(), (int, float))
@@ -22,7 +30,7 @@ def test_reward_loss():
     chosen_rewards = torch.tensor([1, 2, 3, 4])
     rejected_reward = torch.tensor([0, 1, 2, 3])
 
-    loss_func = RewardLoss()
+    loss_func = PairwiseLoss()
     loss = loss_func(chosen_rewards, rejected_reward)
 
     assert loss.numel() == 1

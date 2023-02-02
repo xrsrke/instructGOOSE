@@ -13,7 +13,7 @@ from tqdm import tqdm
 
 # %% ../nbs/03b_dataset.ipynb 5
 class PairDataset(Dataset):
-    def __init__(self, dataset, tokenizer: Callable, max_length: int = 1024):
+    def __init__(self, dataset, tokenizer: Callable, max_length: int):
         
         self.chosen = []
         self.rejected = []
