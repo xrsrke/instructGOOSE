@@ -3,17 +3,24 @@
 # %% auto 0
 __all__ = ['PairDataset', 'PromptDataset']
 
-# %% ../nbs/03b_dataset.ipynb 3
-from typing import Callable
+# %% ../nbs/03b_dataset.ipynb 4
+from typing import Callable, Tuple, Iterable
 
 from torch.utils.data import Dataset
 from transformers import AutoTokenizer
 from datasets import load_dataset
 from tqdm import tqdm
+from torchtyping import TensorType
 
-# %% ../nbs/03b_dataset.ipynb 5
+# %% ../nbs/03b_dataset.ipynb 6
 class PairDataset(Dataset):
-    def __init__(self, dataset, tokenizer: Callable, max_length: int = 1024):
+    """Pairwise dataset for train reward model."""
+    def __init__(
+        self,
+        dataset: Iterable, # A dataset
+        tokenizer: Callable, # The tokenizer of the reward model
+        max_length: int = 1024 # Max context length of the reward model
+    ):
         
         self.chosen = []
         self.rejected = []
@@ -41,19 +48,27 @@ class PairDataset(Dataset):
             })
             
     
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.chosen)
 
-    def __getitem__(self, idx: int):
+    def __getitem__(self, idx: int) -> Tuple[
+        TensorType["seq_len"], TensorType["seq_len"],
+        TensorType["seq_len"], TensorType["seq_len"]
+    ]:
         return self.chosen[idx]["input_ids"],\
                self.chosen[idx]["attention_mask"],\
                self.rejected[idx]["input_ids"],\
                self.rejected[idx]["attention_mask"]
 
-# %% ../nbs/03b_dataset.ipynb 7
+# %% ../nbs/03b_dataset.ipynb 9
 class PromptDataset(Dataset):
-    def __init__(self, dataset, tokenizer: Callable, max_length: int):
-        
+    """Dataset for train RL-based language model."""
+    def __init__(
+        self,
+        dataset: Iterable, # A dataset
+        tokenizer: Callable, # The tokenizer of the language model
+        max_length: int = 1024 # Max context length of the language model
+    ):
         self.prompts = []
         
         for data in tqdm(dataset):
@@ -73,6 +88,6 @@ class PromptDataset(Dataset):
     def __len__(self):
         return len(self.prompts)
 
-    def __getitem__(self, idx: int):
+    def __getitem__(self, idx: int) -> Tuple[TensorType["seq_len"], TensorType["seq_len"]]:
         return self.prompts[idx]["input_ids"],\
                self.prompts[idx]["attention_mask"]
