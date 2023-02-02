@@ -22,7 +22,7 @@ cd instructGOOSE
 pip install -e .
 ```
 
-### Train the RL-based language model
+## Train the RL-based language model
 
 ``` python
 from transformers import AutoTokenizer, AutoModelForCausalLM
@@ -106,13 +106,13 @@ for epoch in range(N_EPOCH):
         print(f"loss={loss}")
 ```
 
-### TODO
+## TODO
 
 - Add support custom reward function
 - Add support custom value function
 - Add support non-transformer models
 
-### Questions
+## Questions
 
 - In the context of RLHF, how to calculate the $L_t^{V F}(\theta)$,
   - Like it’s a function of the PPO agent uses to predict how much
@@ -123,12 +123,13 @@ for epoch in range(N_EPOCH):
   regular PPO Agent?
 - I don’t understand how to calculate the advantage in PPO
 
-### Resources
+## Resources
 
 I used these resources to implement this
 
-- Copied the `load_yaml` function from
-  https://github.com/Dahoas/reward-modeling
+- Copied the
+  [`load_yaml`](https://xrsrke.github.io/instructGOOSE/utils.html#load_yaml)
+  function from https://github.com/Dahoas/reward-modeling
 - How to build a dataset to train reward model:
   https://wandb.ai/carperai/summarize_RLHF/reports/Implementing-RLHF-Learning-to-Summarize-with-trlX–VmlldzozMzAwODM2
 - How to add value head in PPO agent: https://github.com/lvwerra/trl
