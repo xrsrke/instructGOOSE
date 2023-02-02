@@ -1,2 +1,0 @@
-[nbdev]
-instruct_goose = instruct_goose._modidx:d
