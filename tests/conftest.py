@@ -1,22 +1,22 @@
 import os
+import pkg_resources
 
-import pytest
 from torch.utils.data import random_split
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from datasets import load_dataset
+
+import pytest
 from dotenv import load_dotenv
-load_dotenv()
 
 from instruct_goose.utils import load_yaml
 
-
+load_dotenv()
 
 @pytest.fixture
 def default_config():
-    # config_path = Path()
-    # package_path = os.path.abspath(os.path.dirname(__file__))
-    package_path = os.environ.get('PACKAGE_PATH')
-    return load_yaml(package_path + "/configs/sentiment_config.yml")
+    file_path = "../configs/sentiment_config.yml"
+    full_path = pkg_resources.resource_filename(__name__, file_path)
+    return load_yaml(full_path)
 
 @pytest.fixture
 def tokenizer(default_config):
