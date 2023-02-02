@@ -3,7 +3,7 @@
 # %% auto 0
 __all__ = ['RewardModel', 'PairwiseLoss']
 
-# %% ../nbs/03_reward_model.ipynb 3
+# %% ../nbs/03_reward_model.ipynb 4
 from typing import Callable, Union, List
 
 import torch
@@ -17,12 +17,14 @@ from torchtyping import TensorType
 
 from .utils import load_yaml
 
-# %% ../nbs/03_reward_model.ipynb 5
+# %% ../nbs/03_reward_model.ipynb 6
 class RewardModel(nn.Module):
-    def __init__(self, checkpoint: str, dropout: float = 0.1):
+    """Reward model."""
+    def __init__(
+        self, checkpoint: str, # `transformers`'s model path
+        dropout: float = 0.1 
+    ):
         super().__init__()
-        # self.tokenizer = AutoTokenizer.from_pretrained(checkpoint)
-        # self.tokenizer.pad_token = self.tokenizer.eos_token
         self.model = AutoModel.from_pretrained(checkpoint)
         
         config = self.model.config
@@ -39,7 +41,8 @@ class RewardModel(nn.Module):
         self,
         input_ids: TensorType["batch_size", "seq_len"],
         attention_mask: TensorType["batch_size", "seq_len"],
-    ) -> TensorType["batch_size", 1]:
+    ) -> TensorType["batch_size", 1]: # A reward scalar for each item in a batch
+        """Calculate reward for each item in a batch."""
         last_hidden_state = self.model(
             input_ids=input_ids,
             attention_mask=attention_mask,
@@ -54,9 +57,15 @@ class RewardModel(nn.Module):
         
         return reward_scalar
 
-# %% ../nbs/03_reward_model.ipynb 7
+# %% ../nbs/03_reward_model.ipynb 10
 class PairwiseLoss(nn.Module):
-    def forward(self, chosen_rewards: torch.Tensor, rejected_rewards: torch.Tensor):
+    """Pairwise loss function."""
+    def forward(
+        self,
+        chosen_rewards: TensorType["batch_size", 1], # The reward of the chosen prompt
+        rejected_rewards: TensorType["batch_size", 1] # The reward of the rejected prompt
+    ) -> TensorType[1]: # A scalar loss
+        """Forward pass."""
         assert len(chosen_rewards) == len(rejected_rewards)
         batch_size = len(chosen_rewards)
         
