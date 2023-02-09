@@ -112,20 +112,9 @@ for epoch in range(N_EPOCH):
 - Add support custom value function
 - Add support non-transformer models
 
-## Questions
-
-- In the context of RLHF, how to calculate the $L_t^{V F}(\theta)$,
-  - Like it’s a function of the PPO agent uses to predict how much
-    reward it gets if generates the sequence?
-- ~~Does the RL model and the SFT model use the same tokenizer? Yes~~
-- ~~I don’t know how to returns the logit of the generation model~~
-- Does the PPO Agent (Language Model) has a value network just like the
-  regular PPO Agent?
-- I don’t understand how to calculate the advantage in PPO
-
 ## Resources
 
-I used these resources to implement this
+I implemented this using these resources
 
 - Copied the
   [`load_yaml`](https://xrsrke.github.io/instructGOOSE/utils.html#load_yaml)
