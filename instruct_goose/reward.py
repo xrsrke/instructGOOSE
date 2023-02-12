@@ -4,18 +4,10 @@
 __all__ = ['RewardModel', 'PairwiseLoss']
 
 # %% ../nbs/03_reward_model.ipynb 4
-from typing import Callable, Union, List
-
 import torch
 from torch import nn
-import torch.nn.functional as F
-from torch import optim
-import pytorch_lightning as pl 
 from transformers import AutoModel, AutoTokenizer
-from einops import rearrange
 from torchtyping import TensorType
-
-from .utils import load_yaml
 
 # %% ../nbs/03_reward_model.ipynb 6
 class RewardModel(nn.Module):
@@ -50,7 +42,6 @@ class RewardModel(nn.Module):
         
         output = self.reward_head(last_hidden_state)
                 
-        # output = rearrange(output, 'b 1 t 1 -> b t')
         # for eacb item in the batch
         # choose the hidden state of the last token as a reward!
         reward_scalar = output[:, -1, 0]

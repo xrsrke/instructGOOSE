@@ -4,19 +4,14 @@
 __all__ = ['Agent', 'AgentObjective']
 
 # %% ../nbs/08_agent.ipynb 4
-from typing import Callable, Tuple, List, Optional
+from typing import Callable, Tuple, Optional
 
 import torch
 from torch import nn
 import torch.nn.functional as F
-from torch.nn.utils.rnn import pad_sequence
 from torch.distributions import Categorical
 
-from transformers import AutoModel
-import pytorch_lightning as pl 
 from torchtyping import TensorType
-
-from .utils import ReplayBuffer
 
 # %% ../nbs/08_agent.ipynb 6
 class Agent(nn.Module):

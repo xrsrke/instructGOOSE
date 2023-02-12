@@ -7,8 +7,6 @@ __all__ = ['PairDataset', 'PromptDataset']
 from typing import Callable, Tuple, Iterable
 
 from torch.utils.data import Dataset
-from transformers import AutoTokenizer
-from datasets import load_dataset
 from tqdm import tqdm
 from torchtyping import TensorType
 

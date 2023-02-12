@@ -4,16 +4,13 @@
 __all__ = ['RLHFTrainer']
 
 # %% ../nbs/08b_trainer.ipynb 4
-import pytorch_lightning as pl 
-
-# %% ../nbs/08b_trainer.ipynb 5
 from typing import Callable, Tuple
 
 import torch
 from torchtyping import TensorType
 from einops import rearrange
 
-# %% ../nbs/08b_trainer.ipynb 7
+# %% ../nbs/08b_trainer.ipynb 6
 class RLHFTrainer:
     def __init__(
         self,
