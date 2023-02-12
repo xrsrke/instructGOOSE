@@ -6,6 +6,8 @@ InstructGoose
 Paper: InstructGPT - [Training language models to follow instructions
 with human feedback](https://arxiv.org/abs/2203.02155)
 
+![image.png](index_files/figure-commonmark/2a57f276-1-image.png)
+
 ## Install
 
 Install from PipPy

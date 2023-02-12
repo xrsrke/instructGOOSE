@@ -19,41 +19,6 @@ def test_create_rlhf_trainer(agent_model):
     assert trainer.model != None
     assert isinstance(trainer.epsilon, (int, float))
 
-# def test_rlhf_trainer_with_ref_model(default_config, small_prompt_dataset, agent_tokenizer):
-#     # TODO: implement
-#     model_checkpoint = default_config["model"]["model_path"]
-
-#     config = {
-#         "epislon": 0.01,
-#         "ent_coef": 0.01,
-#         "vf_coef": 0.5
-#     }
-
-#     model = Agent(model_checkpoint)
-#     ref_model = create_reference_model(model)
-
-#     ppo_trainer = RLHFTrainer(model, ref_model, config)
-
-#     prompt_dataset = PromptDataset(small_prompt_dataset)
-#     dataloader = DataLoader(prompt_dataset, batch_size=2, shuffle=True)
-
-#     losses = []
-#     objectives = []
-
-#     for batch in dataloader:
-#         loss, objective = ppo_trainer.step(
-#             input_ids=batch["input_ids"],
-#             attention_mask=batch["attention_mask"]
-#         )
-
-#         losses.append(loss)
-#         objectives.append(objective)
-
-#     assert isinstance(loss)
-#     assert loss.shape == (1,)
-#     assert isinstance(loss, torch.Tensor)
-#     assert objective.shape == (1,)
-
 def test_compute_advantage_and_return_rlhf_trainer():
     rewards = torch.tensor([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     values = torch.tensor([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
