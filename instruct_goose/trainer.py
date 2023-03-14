@@ -117,17 +117,4 @@ class RLHFTrainer:
         )
             
         return logprobs, entropy, value, ref_logprob
-    
-    def forward(
-        self,
-        input_ids: TensorType["batch", "seq_len", "n_dim"],
-        attention_mask: TensorType["batch", "seq_len"]
-    ) -> TensorType["batch", "log_probs"]:
-        
-        with torch.no_grad():
-            # action_logits, action_logprobs, entropy, value
-            _, logprobs, entropy, value = self.model(input_ids, attention_mask)
-            _, ref_logprob, _, _ = self.ref_model(input_ids, attention_mask)
-        
-        loss = self.loss(logprobs, entropy, value, ref_logprob)
         
