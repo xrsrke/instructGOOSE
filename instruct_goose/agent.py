@@ -115,19 +115,15 @@ class AgentObjective(nn.Module):
     ) -> TensorType[1]: # A scalar objective value
         """Calculate the objective value given the input ids and attention mask."""
         model_logits = self.model(input_ids, attention_mask)
-        
         model_dist = F.softmax(model_logits, dim=-1)
         
         sft_logits = self.sft_model(input_ids, attention_mask)
         sft_dist = F.softmax(sft_logits, dim=-1)
         
         reward_score = self.reward_model(input_ids, attention_mask)
-        
         ratio = torch.log(model_dist / sft_dist)
         
         # compute the coherent of the generated text
         coherent = torch.log(model_dist)
-        
         objective = (reward_score - self.beta*ratio).mean() + self.gamma * coherent.mean()
-        
         return objective
