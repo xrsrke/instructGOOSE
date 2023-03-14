@@ -42,7 +42,7 @@ class RewardModel(nn.Module):
         
         output = self.reward_head(last_hidden_state)
                 
-        # for eacb item in the batch
+        # for each item in the batch
         # choose the hidden state of the last token as a reward!
         reward_scalar = output[:, -1, 0]
         

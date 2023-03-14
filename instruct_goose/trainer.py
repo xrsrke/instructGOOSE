@@ -73,14 +73,9 @@ class RLHFTrainer:
             response_attention_mask=response_attention_mask
         )
         
-        # loss = self.loss(logprobs, ref_logprobs, values)
-        
         ratio = (logprobs - ref_logprobs).exp()
         clipped_ratio = torch.clamp(ratio, min=1-self.epsilon, max=1+self.epsilon)
         
-        # TODO: write the advantages
-        # advantages = rewards
-        # returns = rewards
         advantages, returns = self.compute_advantage_and_return(rewards, values)
         
         pg_loss_1 = ratio * advantages
