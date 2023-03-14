@@ -59,12 +59,20 @@ class RLHFTrainer:
 
     def compute_loss(
         self,
-        queries: TensorType["batch_size", "seq_len"],
-        responses: TensorType["batch_size", "seq_len"],
+        query_ids: TensorType["batch_size", "seq_len"],
+        query_attention_mask: TensorType["batch_size", "seq_len"],
+        response_ids: TensorType["batch_size", "seq_len"],
+        response_attention_mask: TensorType["batch_size", "seq_len"],
         rewards: TensorType["batch_size"],
     ) -> TensorType["1"]:
         """Calculate PPO's loss."""
-        logprobs, values, entropies, ref_logprobs = self._forward_batch(queries, responses)
+        logprobs, values, entropies, ref_logprobs = self._forward_batch(
+            query_ids=query_ids,
+            query_attention_mask=query_attention_mask,
+            response_ids=response_ids,
+            response_attention_mask=response_attention_mask
+        )
+        
         # loss = self.loss(logprobs, ref_logprobs, values)
         
         ratio = (logprobs - ref_logprobs).exp()
@@ -88,16 +96,25 @@ class RLHFTrainer:
     
     def _forward_batch(
         self,
-        queries: TensorType["batch_size", "seq_len"],
-        responses: TensorType["batch_size", "seq_len"]
+        query_ids: TensorType["batch_size", "seq_len"],
+        query_attention_mask: TensorType["batch_size", "seq_len"],
+        response_ids: TensorType["batch_size", "seq_len"],
+        response_attention_mask: TensorType["batch_size", "seq_len"]
     ) -> Tuple[
         TensorType["batch_size"], TensorType["batch_size"],
         TensorType["batch_size"], TensorType["batch_size"]
     ]:
-        inputs = torch.cat([queries, responses], dim=1)
+        input_ids = torch.cat([query_ids, response_ids], dim=1)
+        attention_mask = torch.cat([query_attention_mask, response_attention_mask], dim=1)
         
-        _, logprobs, entropy, value = self.model(inputs)
-        _, ref_logprob, _, _ = self.ref_model(inputs)
+        _, logprobs, entropy, value = self.model(
+            input_ids=input_ids,
+            attention_mask=attention_mask
+        )
+        _, ref_logprob, _, _ = self.ref_model(
+            input_ids=input_ids,
+            attention_mask=attention_mask   
+        )
             
         return logprobs, entropy, value, ref_logprob
     

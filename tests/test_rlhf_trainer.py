@@ -43,10 +43,16 @@ def test_compute_loss_rlhf_trainer(agent_model, agent_tokenizer):
         "Nah. I'm not telling you!!!"
     ]
 
-    query_input_ids = agent_tokenizer(queries, padding=True, truncation=True, return_tensors="pt")["input_ids"]
-    response_input_ids = agent_tokenizer(responses, padding=True, truncation=True, return_tensors="pt")["input_ids"]
+    encoded_queries = agent_tokenizer(queries, padding=True, truncation=True, return_tensors="pt")
+    encoded_responses = agent_tokenizer(responses, padding=True, truncation=True, return_tensors="pt")
     rewards = torch.tensor([0.1, 0.9])
 
-    loss = trainer.compute_loss(query_input_ids, response_input_ids, rewards)
+    loss = trainer.compute_loss(
+        query_ids=encoded_queries["input_ids"],
+        query_attention_mask=encoded_queries["attention_mask"],
+        response_ids=encoded_responses["input_ids"],
+        response_attention_mask=encoded_responses["attention_mask"],
+        rewards=rewards
+    )
 
     assert isinstance(loss.item(), (int, float))

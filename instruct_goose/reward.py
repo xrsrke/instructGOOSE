@@ -32,7 +32,7 @@ class RewardModel(nn.Module):
     def forward(
         self,
         input_ids: TensorType["batch_size", "seq_len"],
-        attention_mask: TensorType["batch_size", "seq_len"],
+        attention_mask: TensorType["batch_size", "seq_len"] = None,
     ) -> TensorType["batch_size", 1]: # A reward scalar for each item in a batch
         """Calculate reward for each item in a batch."""
         last_hidden_state = self.model(

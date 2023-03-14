@@ -6,7 +6,7 @@ InstructGoose
 Paper: InstructGPT - [Training language models to follow instructions
 with human feedback](https://arxiv.org/abs/2203.02155)
 
-![image.png](index_files/figure-commonmark/2a57f276-1-image.png)
+![image.png](index_files/figure-commonmark/d4b24343-1-image.png)
 
 ## Install
 
@@ -86,22 +86,28 @@ optimizer = optim.SGD(model.parameters(), lr=1e-3)
 for epoch in range(N_EPOCH):
     for batch in train_dataloader:
         inputs = tokenizer(batch["text"], padding=True, truncation=True, return_tensors="pt")
-        responses = model.generate(
+        response_ids = model.generate(
             inputs["input_ids"], attention_mask=inputs["attention_mask"],
             **generation_kwargs
         )
         
         # extract the generated text
-        responses = responses[:, -max_new_tokens:]
+        response_ids = response_ids[:, -max_new_tokens:]
+        response_attention_mask = torch.ones_like(response_ids)
         
         # evaluate from the reward model
         with torch.no_grad():
-            text_input_ids = torch.stack([torch.concat([q, r]) for q, r in zip(inputs["input_ids"], responses)], dim=0)
-            texts = tokenizer.batch_decode(text_input_ids, skip_special_tokens=True)
-            rewards = reward_model(texts)
+            text_input_ids = torch.stack([torch.concat([q, r]) for q, r in zip(inputs["input_ids"], response_ids)], dim=0)
+            rewards = reward_model(text_input_ids)
         
         # calculate PPO loss
-        loss = trainer.compute_loss(inputs["input_ids"], responses, rewards)
+        loss = trainer.compute_loss(
+            query_ids=inputs["input_ids"],
+            query_attention_mask=inputs["attention_mask"],
+            response_ids=response_ids,
+            response_attention_mask=response_attention_mask,
+            rewards=rewards
+        )
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
