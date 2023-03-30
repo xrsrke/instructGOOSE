@@ -138,3 +138,5 @@ tests/__pycache__
 _proc
 
 .DS_Store
+
+lightning_logs/*
