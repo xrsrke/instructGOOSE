@@ -6,7 +6,7 @@ InstructGoose
 Paper: InstructGPT - [Training language models to follow instructions
 with human feedback](https://arxiv.org/abs/2203.02155)
 
-![image.png](index_files/figure-commonmark/e56044f0-1-image.png)
+![image.png](index_files/figure-commonmark/e47e91ba-1-image.png)
 
 ## Install
 

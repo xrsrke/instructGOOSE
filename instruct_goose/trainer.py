@@ -76,13 +76,11 @@ class RLHFTrainer:
         clipped_ratio = torch.clamp(ratio, min=1-self.epsilon, max=1+self.epsilon)
         
         advantages, returns = self.compute_advantage_and_return(rewards, values)
+        value_loss = (values - returns).pow(2).mean()
         
         pg_loss_1 = ratio * advantages
         pg_loss_2 = ratio * clipped_ratio
-        
         pg_loss = torch.min(pg_loss_1, pg_loss_2).mean()
-        
-        value_loss = (values - returns).pow(2).mean()
         
         loss = pg_loss - self.ent_coef * entropies.mean() + self.vf_coef * value_loss
         
