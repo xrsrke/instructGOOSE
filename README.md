@@ -6,7 +6,7 @@ InstructGoose
 Paper: InstructGPT - [Training language models to follow instructions
 with human feedback](https://arxiv.org/abs/2203.02155)
 
-![image.png](index_files/figure-commonmark/d2fba30b-1-image.png)
+![image.png](index_files/figure-commonmark/e56044f0-1-image.png)
 
 ## Install
 
@@ -31,7 +31,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 from datasets import load_dataset
 
 import torch
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, random_split
 from torch import optim
 
 from instruct_goose import Agent, RewardModel, RLHFTrainer, RLHFConfig, create_reference_model
@@ -41,13 +41,16 @@ from instruct_goose import Agent, RewardModel, RLHFTrainer, RLHFConfig, create_r
 
 ``` python
 dataset = load_dataset("imdb", split="train")
+dataset, _ = random_split(dataset, lengths=[10, len(dataset) - 10]) # for demenstration purposes
 train_dataloader = DataLoader(dataset, batch_size=4, shuffle=True)
 ```
+
+    Found cached dataset imdb (/Users/education/.cache/huggingface/datasets/imdb/plain_text/1.0.0/d613c88cf8fa3bab83b4ded3713f1f74830d1100e171db75bbddb80b3345c9c0)
 
 **Step 2**: Load the pre-trained model and tokenizer
 
 ``` python
-model_base = AutoModelForCausalLM.from_pretrained("gpt2")
+model_base = AutoModelForCausalLM.from_pretrained("gpt2") # for demonstration purposes
 reward_model = RewardModel("gpt2")
 
 tokenizer = AutoTokenizer.from_pretrained("gpt2")
@@ -77,7 +80,7 @@ generation_kwargs = {
 }
 
 config = RLHFConfig()
-N_EPOCH = 100
+N_EPOCH = 1 # for demonstration purposes
 trainer = RLHFTrainer(model, ref_model, config)
 optimizer = optim.SGD(model.parameters(), lr=1e-3)
 ```
@@ -113,6 +116,16 @@ for epoch in range(N_EPOCH):
         optimizer.step()
         print(f"loss={loss}")
 ```
+
+    A decoder-only architecture is being used, but right-padding was detected! For correct generation results, please set `padding_side='left'` when initializing the tokenizer.
+    A decoder-only architecture is being used, but right-padding was detected! For correct generation results, please set `padding_side='left'` when initializing the tokenizer.
+
+    loss=0.6447288393974304
+
+    A decoder-only architecture is being used, but right-padding was detected! For correct generation results, please set `padding_side='left'` when initializing the tokenizer.
+
+    loss=-52.96920394897461
+    loss=4.969039440155029
 
 ## TODO
 
