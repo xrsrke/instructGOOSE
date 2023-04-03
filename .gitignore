@@ -140,5 +140,4 @@ _proc
 .DS_Store
 
 lightning_logs/*
-
 nbs/lightning_logs/*
