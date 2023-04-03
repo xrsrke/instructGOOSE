@@ -6,7 +6,7 @@ InstructGoose
 Paper: InstructGPT - [Training language models to follow instructions
 with human feedback](https://arxiv.org/abs/2203.02155)
 
-![image.png](index_files/figure-commonmark/e47e91ba-1-image.png)
+![image.png](index_files/figure-commonmark/d8305522-1-image.png)
 
 ## Install
 
@@ -53,7 +53,7 @@ train_dataloader = DataLoader(dataset, batch_size=4, shuffle=True)
 model_base = AutoModelForCausalLM.from_pretrained("gpt2") # for demonstration purposes
 reward_model = RewardModel("gpt2")
 
-tokenizer = AutoTokenizer.from_pretrained("gpt2")
+tokenizer = AutoTokenizer.from_pretrained("gpt2", padding_side="left")
 eos_token_id = tokenizer.eos_token_id
 tokenizer.pad_token = tokenizer.eos_token
 ```
@@ -117,21 +117,16 @@ for epoch in range(N_EPOCH):
         print(f"loss={loss}")
 ```
 
-    A decoder-only architecture is being used, but right-padding was detected! For correct generation results, please set `padding_side='left'` when initializing the tokenizer.
-    A decoder-only architecture is being used, but right-padding was detected! For correct generation results, please set `padding_side='left'` when initializing the tokenizer.
-
-    loss=0.6447288393974304
-
-    A decoder-only architecture is being used, but right-padding was detected! For correct generation results, please set `padding_side='left'` when initializing the tokenizer.
-
-    loss=-52.96920394897461
-    loss=4.969039440155029
+    loss=-824.6560668945312
+    loss=0.030958056449890137
+    loss=4.284017562866211
 
 ## TODO
 
 - Add support custom reward function
 - Add support custom value function
 - Add support non-transformer models
+- Write config class
 
 ## Resources
 

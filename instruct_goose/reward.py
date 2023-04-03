@@ -56,10 +56,8 @@ class PairwiseLoss(nn.Module):
         chosen_rewards: TensorType["batch_size", 1], # The reward of the chosen prompt
         rejected_rewards: TensorType["batch_size", 1] # The reward of the rejected prompt
     ) -> TensorType[1]: # A scalar loss
-        """Forward pass."""
+        """Compute the loss value."""
         assert len(chosen_rewards) == len(rejected_rewards)
-        batch_size = len(chosen_rewards)
-        
-        # maps the difference between the rewards to a probability
-        probs = torch.sigmoid(chosen_rewards - rejected_rewards)
+        batch_size = len(chosen_rewards)        
+        probs = torch.sigmoid(chosen_rewards - rejected_rewards).log()
         return -probs.mean() / batch_size

@@ -26,6 +26,7 @@ def test_reward_model(default_config, reward_tokenizer):
     assert isinstance(rewards[0].item(), (int, float))
     assert 0 <= rewards[0].item() <= 1
 
+
 def test_reward_loss():
     chosen_rewards = torch.tensor([1, 2, 3, 4])
     rejected_reward = torch.tensor([0, 1, 2, 3])
@@ -34,3 +35,4 @@ def test_reward_loss():
     loss = loss_func(chosen_rewards, rejected_reward)
 
     assert loss.numel() == 1
+    assert loss.item() > 0
