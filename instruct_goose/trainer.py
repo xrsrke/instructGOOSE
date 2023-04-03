@@ -10,13 +10,17 @@ import torch
 from torchtyping import TensorType
 from einops import rearrange
 
+from transformers import PreTrainedModel
+
+from .utils import RLHFConfig
+
 # %% ../nbs/04_trainer.ipynb 6
 class RLHFTrainer:
     def __init__(
         self,
-        model: Callable, # A pre-trained language model
-        ref_model: Callable, # A a reference model 
-        config
+        model: PreTrainedModel, # A pre-trained language model
+        ref_model: PreTrainedModel, # A a reference model 
+        config: RLHFConfig,
     ):
         self.model = model
         self.ref_model = ref_model
@@ -83,7 +87,6 @@ class RLHFTrainer:
         pg_loss = torch.min(pg_loss_1, pg_loss_2).mean()
         
         loss = pg_loss - self.ent_coef * entropies.mean() + self.vf_coef * value_loss
-        
         return loss
     
     def forward(
@@ -93,8 +96,10 @@ class RLHFTrainer:
         response_ids: TensorType["batch_size", "seq_len"],
         response_attention_mask: TensorType["batch_size", "seq_len"]
     ) -> Tuple[
-        TensorType["batch_size"], TensorType["batch_size"],
-        TensorType["batch_size"], TensorType["batch_size"]
+        TensorType["batch_size"], # main model's logprobs
+        TensorType["batch_size"], # entropy
+        TensorType["batch_size"], # value
+        TensorType["batch_size"], # reference model's log prob
     ]:
         input_ids = torch.cat([query_ids, response_ids], dim=1)
         attention_mask = torch.cat([query_attention_mask, response_attention_mask], dim=1)
@@ -109,4 +114,3 @@ class RLHFTrainer:
         )
             
         return logprobs, entropy, value, ref_logprob
-        

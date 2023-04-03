@@ -1,12 +1,9 @@
 import torch
-from torch.utils.data import DataLoader
-
-from transformers import AutoModelForCausalLM
 
 from instruct_goose.agent import Agent
-from instruct_goose.dataset import PromptDataset
 from instruct_goose.trainer import RLHFTrainer
 from instruct_goose.utils import create_reference_model, RLHFConfig
+
 
 def test_create_rlhf_trainer(agent_model):
     config = RLHFConfig()
@@ -19,6 +16,7 @@ def test_create_rlhf_trainer(agent_model):
     assert trainer.model != None
     assert isinstance(trainer.epsilon, (int, float))
 
+
 def test_compute_advantage_and_return_rlhf_trainer():
     rewards = torch.tensor([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     values = torch.tensor([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
@@ -27,6 +25,7 @@ def test_compute_advantage_and_return_rlhf_trainer():
 
     assert advantages.shape == (1,)
     assert returns.shape == (rewards.shape[-1],)
+
 
 def test_compute_loss_rlhf_trainer(agent_model, agent_tokenizer):
     config = RLHFConfig()

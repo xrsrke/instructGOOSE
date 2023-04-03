@@ -12,13 +12,14 @@ import torch.nn.functional as F
 from torch.distributions import Categorical
 
 from torchtyping import TensorType
+from transformers import PreTrainedModel
 
 # %% ../nbs/02_agent.ipynb 6
 class Agent(nn.Module):
     "The RL-based language model."
     def __init__(
         self,
-        model: Callable # a pre-trained `transformers` model
+        model: PreTrainedModel # a pre-trained `transformers` model
     ):
         super().__init__()
         n_embd = model.config.n_embd
@@ -95,8 +96,8 @@ class AgentObjective(nn.Module):
     """Agent objective."""
     def __init__(
         self,
-        model: Callable, # the language model
-        sft_model: Callable, # the reference model
+        model: PreTrainedModel, # the language model
+        sft_model: PreTrainedModel, # the reference model
         reward_model: Callable, # the reward model
         gamma: float,
         beta: float
