@@ -21,8 +21,3 @@ repos:
     hooks:
     -   id: black
         files: ^(trlx|examples|tests|setup.py)/
--   repo: https://github.com/pycqa/isort
-    rev: 5.12.0
-    hooks:
-    -   id: isort
-        name: isort (python)
