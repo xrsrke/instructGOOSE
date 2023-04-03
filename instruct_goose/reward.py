@@ -6,9 +6,8 @@ __all__ = ['RewardModel', 'PairwiseLoss']
 # %% ../nbs/03_reward_model.ipynb 4
 import torch
 from torch import nn
-from torchtyping import TensorType
 from transformers import AutoModel, AutoTokenizer
-
+from torchtyping import TensorType
 
 # %% ../nbs/03_reward_model.ipynb 6
 class RewardModel(nn.Module):

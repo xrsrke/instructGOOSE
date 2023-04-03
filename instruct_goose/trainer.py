@@ -7,12 +7,12 @@ __all__ = ['RLHFTrainer']
 from typing import Callable, Tuple
 
 import torch
-from einops import rearrange
 from torchtyping import TensorType
+from einops import rearrange
+
 from transformers import PreTrainedModel
 
 from .utils import RLHFConfig
-
 
 # %% ../nbs/04_trainer.ipynb 6
 class RLHFTrainer:

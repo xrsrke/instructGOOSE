@@ -20,4 +20,4 @@ repos:
     rev: 23.1.0
     hooks:
     -   id: black
-        files: ^(trlx|examples|tests|setup.py)/
+        files: ^(instructgoose|tests|setup.py)/

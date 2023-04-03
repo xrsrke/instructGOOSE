@@ -4,15 +4,15 @@
 __all__ = ['Agent', 'AgentObjective']
 
 # %% ../nbs/02_agent.ipynb 4
-from typing import Callable, Optional, Tuple
+from typing import Callable, Tuple, Optional
 
 import torch
-import torch.nn.functional as F
 from torch import nn
+import torch.nn.functional as F
 from torch.distributions import Categorical
+
 from torchtyping import TensorType
 from transformers import PreTrainedModel
-
 
 # %% ../nbs/02_agent.ipynb 6
 class Agent(nn.Module):

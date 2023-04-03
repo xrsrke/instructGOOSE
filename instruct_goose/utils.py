@@ -4,12 +4,10 @@
 __all__ = ['load_yaml', 'RLHFConfig', 'create_reference_model', 'ModelConfig', 'TokenizerConfig', 'OptimizerConfig',
            'TrainerConfig', 'PPOConfig', 'InstructConfig']
 
-from copy import deepcopy
-from dataclasses import dataclass
-
 # %% ../nbs/05_utils.ipynb 3
 import yaml
-
+from copy import deepcopy
+from dataclasses import dataclass
 
 # %% ../nbs/05_utils.ipynb 4
 def load_yaml(config_path):

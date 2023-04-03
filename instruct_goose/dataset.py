@@ -4,12 +4,11 @@
 __all__ = ['PairDataset', 'PromptDataset']
 
 # %% ../nbs/01_dataset.ipynb 4
-from typing import Callable, Iterable, Tuple
+from typing import Callable, Tuple, Iterable
 
 from torch.utils.data import Dataset
-from torchtyping import TensorType
 from tqdm import tqdm
-
+from torchtyping import TensorType
 
 # %% ../nbs/01_dataset.ipynb 6
 class PairDataset(Dataset):
