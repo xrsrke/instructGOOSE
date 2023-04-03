@@ -4,11 +4,12 @@
 __all__ = ['PairDataset', 'PromptDataset']
 
 # %% ../nbs/01_dataset.ipynb 4
-from typing import Callable, Tuple, Iterable
+from typing import Callable, Iterable, Tuple
 
 from torch.utils.data import Dataset
-from tqdm import tqdm
 from torchtyping import TensorType
+from tqdm import tqdm
+
 
 # %% ../nbs/01_dataset.ipynb 6
 class PairDataset(Dataset):
@@ -19,10 +20,10 @@ class PairDataset(Dataset):
         tokenizer: Callable, # The tokenizer of the reward model
         max_length: int = 1024 # Max context length of the reward model
     ):
-        
+
         self.chosen = []
         self.rejected = []
-        
+
         for data in tqdm(dataset):
             chosen, rejected = data["chosen"], data["rejected"]
             chosen_encoding = tokenizer(
@@ -35,7 +36,7 @@ class PairDataset(Dataset):
                 max_length=max_length, padding="max_length", truncation=True,
                 return_tensors="pt"
             )
-            
+
             self.chosen.append({
                 "input_ids": chosen_encoding["input_ids"],
                 "attention_mask": chosen_encoding["attention_mask"]
@@ -44,7 +45,7 @@ class PairDataset(Dataset):
                 "input_ids": rejected_encoding["input_ids"],
                 "attention_mask": rejected_encoding["attention_mask"]
             })
-    
+
     def __len__(self) -> int:
         return len(self.chosen)
 
@@ -67,7 +68,7 @@ class PromptDataset(Dataset):
         max_length: int = 1024 # Max context length of the language model
     ):
         self.prompts = []
-        
+
         for data in tqdm(dataset):
             prompt = data["prompt"]
             prompt_encoding = tokenizer(
@@ -75,12 +76,12 @@ class PromptDataset(Dataset):
                 max_length=max_length, padding="max_length", truncation=True,
                 return_tensors="pt"
             )
-            
+
             self.prompts.append({
                 "input_ids": prompt_encoding["input_ids"],
                 "attention_mask": prompt_encoding["attention_mask"]
             })
-            
+
     def __len__(self):
         return len(self.prompts)
 

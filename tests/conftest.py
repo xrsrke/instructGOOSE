@@ -1,21 +1,21 @@
 import pkg_resources
-
-from torch.utils.data import random_split
-from transformers import AutoTokenizer, AutoModelForCausalLM
-from datasets import load_dataset
-
 import pytest
+from datasets import load_dataset
 from dotenv import load_dotenv
+from torch.utils.data import random_split
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from instruct_goose.utils import load_yaml
 
 load_dotenv()
+
 
 @pytest.fixture
 def default_config():
     file_path = "../configs/sentiment_config.yml"
     full_path = pkg_resources.resource_filename(__name__, file_path)
     return load_yaml(full_path)
+
 
 @pytest.fixture
 def tokenizer(default_config):
@@ -25,16 +25,21 @@ def tokenizer(default_config):
 
 #### REWARD MODEL
 
+
 @pytest.fixture
 def reward_dataset(default_config):
     dataset_checkpoint = default_config["reward_data"]["data_path"]
     dataset = load_dataset(dataset_checkpoint)
     return dataset
 
+
 @pytest.fixture
 def small_reward_dataset(reward_dataset):
-    small_dataset, _ = random_split(reward_dataset["train"], [10, len(reward_dataset["train"]) - 10])
+    small_dataset, _ = random_split(
+        reward_dataset["train"], [10, len(reward_dataset["train"]) - 10]
+    )
     return small_dataset
+
 
 @pytest.fixture
 def reward_tokenizer(default_config):
@@ -46,6 +51,7 @@ def reward_tokenizer(default_config):
 
 #### RL MODEL
 
+
 @pytest.fixture
 def small_prompt_dataset(default_config):
     dataset_checkpoint = default_config["agent_data"]["data_path"]
@@ -54,11 +60,13 @@ def small_prompt_dataset(default_config):
 
     return small_dataset
 
+
 @pytest.fixture
 def agent_model(default_config):
     model_checkpoint = default_config["model"]["model_path"]
     model = AutoModelForCausalLM.from_pretrained(model_checkpoint)
     return model
+
 
 @pytest.fixture
 def agent_tokenizer(default_config):

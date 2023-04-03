@@ -14,6 +14,7 @@ def test_create_pair_dataset(small_reward_dataset, reward_tokenizer):
     assert isinstance(pair_dataset[0][2], torch.Tensor)
     assert isinstance(pair_dataset[0][3], torch.Tensor)
 
+
 def test_prompt_dataset(small_prompt_dataset, agent_tokenizer):
     max_length = 512
     prompt_dataset = PromptDataset(small_prompt_dataset, agent_tokenizer, max_length)

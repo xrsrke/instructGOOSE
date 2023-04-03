@@ -1,20 +1,16 @@
 import torch
 
-from instruct_goose.reward import RewardModel, PairwiseLoss
+from instruct_goose.reward import PairwiseLoss, RewardModel
 
 
 def test_reward_model(default_config, reward_tokenizer):
     checkpoint = default_config["reward_model"]["model_path"]
     reward_model = RewardModel(checkpoint)
 
-    prompts = [
-        "this is suppose to be a bad text",
-        "this is suppose to be a good text"
-    ]
+    prompts = ["this is suppose to be a bad text", "this is suppose to be a good text"]
 
     inputs = reward_tokenizer(
-        prompts, padding=True, truncation=True,
-        return_tensors="pt"
+        prompts, padding=True, truncation=True, return_tensors="pt"
     )
 
     rewards = reward_model(

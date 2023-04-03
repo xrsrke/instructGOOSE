@@ -4,15 +4,15 @@
 __all__ = ['Agent', 'AgentObjective']
 
 # %% ../nbs/02_agent.ipynb 4
-from typing import Callable, Tuple, Optional
+from typing import Callable, Optional, Tuple
 
 import torch
-from torch import nn
 import torch.nn.functional as F
+from torch import nn
 from torch.distributions import Categorical
-
 from torchtyping import TensorType
 from transformers import PreTrainedModel
+
 
 # %% ../nbs/02_agent.ipynb 6
 class Agent(nn.Module):
@@ -25,7 +25,7 @@ class Agent(nn.Module):
         n_embd = model.config.n_embd
         self.eos_token_id = model.config.eos_token_id
 
-        self.policy_network = model        
+        self.policy_network = model
         self.value_network = nn.Sequential(
             nn.Linear(n_embd, 256),
             nn.ReLU(),
@@ -34,7 +34,7 @@ class Agent(nn.Module):
             nn.Linear(256, 1),
             nn.Tanh()
         )
-    
+
     def get_value(
         self, hidden_state: TensorType["batch_size", "seq_len", "n_embd"]
     ) -> TensorType["batch_size", 1]:
@@ -51,7 +51,7 @@ class Agent(nn.Module):
             input_ids=input_ids, attention_mask=attention_mask, **kwargs
         )
         return output
-    
+
     def forward(
         self,
         input_ids: TensorType["batch_size", "seq_len"],
@@ -73,22 +73,22 @@ class Agent(nn.Module):
                 input_ids, attention_mask=attention_mask,
                 output_hidden_states=True,
             )
-        
+
         last_hidden_state = base_output.hidden_states[-1]
-        
+
         # takes the logit of the last token
         # for each sequence in the batch
         logits = base_output.logits[:, -1, :]
         probs = F.softmax(logits, dim=-1)
-                                
+
         action_dist = Categorical(probs=probs)
         action = action_dist.sample()
         entropy = action_dist.entropy()
         logprobs = action_dist.log_prob(action)
-        
+
         # predicted reward value
         value = self.get_value(last_hidden_state).squeeze(-1)
-        
+
         return action, logprobs, entropy, value
 
 # %% ../nbs/02_agent.ipynb 12
@@ -108,7 +108,7 @@ class AgentObjective(nn.Module):
         self.reward_model = reward_model
         self.gamma = gamma
         self.beta = beta
-        
+
     def forward(
         self,
         input_ids: TensorType["batch_size", "seq_len"],
@@ -117,13 +117,13 @@ class AgentObjective(nn.Module):
         """Calculate the objective value given the input ids and attention mask."""
         model_logits = self.model(input_ids, attention_mask)
         model_dist = F.softmax(model_logits, dim=-1)
-        
+
         sft_logits = self.sft_model(input_ids, attention_mask)
         sft_dist = F.softmax(sft_logits, dim=-1)
-        
+
         reward_score = self.reward_model(input_ids, attention_mask)
         ratio = torch.log(model_dist / sft_dist)
-        
+
         # compute the coherent of the generated text
         coherent = torch.log(model_dist)
         objective = (reward_score - self.beta*ratio).mean() + self.gamma * coherent.mean()

@@ -2,7 +2,7 @@ import torch
 
 from instruct_goose.agent import Agent
 from instruct_goose.trainer import RLHFTrainer
-from instruct_goose.utils import create_reference_model, RLHFConfig
+from instruct_goose.utils import RLHFConfig, create_reference_model
 
 
 def test_create_rlhf_trainer(agent_model):
@@ -13,7 +13,7 @@ def test_create_rlhf_trainer(agent_model):
 
     trainer = RLHFTrainer(model, ref_model, config)
 
-    assert trainer.model != None
+    assert trainer.model is not None
     assert isinstance(trainer.epsilon, (int, float))
 
 
@@ -33,17 +33,15 @@ def test_compute_loss_rlhf_trainer(agent_model, agent_tokenizer):
     ref_model = create_reference_model(model)
     trainer = RLHFTrainer(model, ref_model, config)
 
-    queries = [
-        "Are you a nice bot?",
-        "What time is it?"
-    ]
-    responses = [
-        "Nah. I'm a mean bot.",
-        "Nah. I'm not telling you!!!"
-    ]
+    queries = ["Are you a nice bot?", "What time is it?"]
+    responses = ["Nah. I'm a mean bot.", "Nah. I'm not telling you!!!"]
 
-    encoded_queries = agent_tokenizer(queries, padding=True, truncation=True, return_tensors="pt")
-    encoded_responses = agent_tokenizer(responses, padding=True, truncation=True, return_tensors="pt")
+    encoded_queries = agent_tokenizer(
+        queries, padding=True, truncation=True, return_tensors="pt"
+    )
+    encoded_responses = agent_tokenizer(
+        responses, padding=True, truncation=True, return_tensors="pt"
+    )
     rewards = torch.tensor([0.1, 0.9])
 
     loss = trainer.compute_loss(
@@ -51,7 +49,7 @@ def test_compute_loss_rlhf_trainer(agent_model, agent_tokenizer):
         query_attention_mask=encoded_queries["attention_mask"],
         response_ids=encoded_responses["input_ids"],
         response_attention_mask=encoded_responses["attention_mask"],
-        rewards=rewards
+        rewards=rewards,
     )
 
     assert isinstance(loss.item(), (int, float))

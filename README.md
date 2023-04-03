@@ -102,16 +102,16 @@ for epoch in range(N_EPOCH):
             inputs["input_ids"], attention_mask=inputs["attention_mask"],
             **generation_kwargs
         )
-        
+
         # extract the generated text
         response_ids = response_ids[:, -max_new_tokens:]
         response_attention_mask = torch.ones_like(response_ids)
-        
+
         # evaluate from the reward model
         with torch.no_grad():
             text_input_ids = torch.stack([torch.concat([q, r]) for q, r in zip(inputs["input_ids"], response_ids)], dim=0)
             rewards = reward_model(text_input_ids)
-        
+
         # calculate PPO loss
         loss = trainer.compute_loss(
             query_ids=inputs["input_ids"],

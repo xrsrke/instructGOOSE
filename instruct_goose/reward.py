@@ -6,29 +6,30 @@ __all__ = ['RewardModel', 'PairwiseLoss']
 # %% ../nbs/03_reward_model.ipynb 4
 import torch
 from torch import nn
-from transformers import AutoModel, AutoTokenizer
 from torchtyping import TensorType
+from transformers import AutoModel, AutoTokenizer
+
 
 # %% ../nbs/03_reward_model.ipynb 6
 class RewardModel(nn.Module):
     """Reward model."""
     def __init__(
         self, checkpoint: str, # `transformers`'s model path
-        dropout: float = 0.1 
+        dropout: float = 0.1
     ):
         super().__init__()
         self.model = AutoModel.from_pretrained(checkpoint)
-        
+
         config = self.model.config
         n_embed = config.n_embd
-        
+
         # custom head
         self.reward_head = nn.Sequential(
             nn.Dropout(dropout),
             nn.Linear(n_embed, 1),
             nn.Sigmoid()
         )
-        
+
     def forward(
         self,
         input_ids: TensorType["batch_size", "seq_len"],
@@ -39,13 +40,13 @@ class RewardModel(nn.Module):
             input_ids=input_ids,
             attention_mask=attention_mask,
         ).last_hidden_state
-        
+
         output = self.reward_head(last_hidden_state)
-                
+
         # for each item in the batch
         # choose the hidden state of the last token as a reward!
         reward_scalar = output[:, -1, 0]
-        
+
         return reward_scalar
 
 # %% ../nbs/03_reward_model.ipynb 10
@@ -58,6 +59,6 @@ class PairwiseLoss(nn.Module):
     ) -> TensorType[1]: # A scalar loss
         """Compute the loss value."""
         assert len(chosen_rewards) == len(rejected_rewards)
-        batch_size = len(chosen_rewards)        
+        batch_size = len(chosen_rewards)
         probs = torch.sigmoid(chosen_rewards - rejected_rewards).log()
         return -probs.mean() / batch_size
