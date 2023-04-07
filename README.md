@@ -15,7 +15,7 @@ Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.
 Paper: InstructGPT - [Training language models to follow instructions
 with human feedback](https://arxiv.org/abs/2203.02155)
 
-![image.png](index_files/figure-commonmark/f62c5bc7-1-image.png)
+![image.png](index_files/figure-commonmark/531cd4d9-1-image.png)
 
 ## Install
 
@@ -35,7 +35,9 @@ pip install -e .
 
 ### How to Train
 
-Use 🤗 Accelerate to distribute training of a reward model
+**For reward model**
+
+Use 🤗 Accelerate to launch distributed training
 
 ``` bash
 accelerate config

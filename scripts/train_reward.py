@@ -70,6 +70,7 @@ def train(accelerator, config):
                     accelerator.log({
                         "train_loss": train_loss.compute()
                     }, step=current_step)
+
                     train_loss.reset()
 
         accelerator.print(f"Epoch {epoch} finished")
