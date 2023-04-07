@@ -4,7 +4,7 @@ train:
   batch_size: 2
 
   # checkpoint_interval: 10000 # checkpoint interval
-  # eval_interval: 128
+  eval_interval: 1
 
 model:
   model_path: "gpt2"
@@ -17,3 +17,11 @@ optimizer:
 
 data:
   data_path: "CarperAI/openai_summarize_comparisons"
+
+wandb:
+  project_name: "instruct_goose"
+  entity: "instruct_goose"
+
+experiment:
+  name: "first_train"
+  seed: 42

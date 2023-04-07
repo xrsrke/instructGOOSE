@@ -1,7 +1,9 @@
+import time
 from argparse import ArgumentParser
 
 from torch import optim
 from torch.utils.data import DataLoader, random_split
+from torchmetrics import MeanMetric
 
 from transformers import AutoTokenizer
 from datasets import load_dataset
@@ -12,7 +14,7 @@ from instruct_goose.reward import RewardModel, PairwiseLoss
 from instruct_goose.dataset import PairDataset
 from instruct_goose.utils import load_yaml
 
-def train(config):
+def train(accelerator, config):
 
     MODEL_PATH = config["model"]["model_path"]
     DATA_PATH = config["data"]["data_path"]
@@ -21,7 +23,6 @@ def train(config):
     LEARNING_RATE = config["optimizer"]["lr"]
     BATCH_SIZE = config["train"]["batch_size"]
 
-    accelerator = Accelerator()
     device = accelerator.device
 
     accelerator.print(config)
@@ -40,11 +41,11 @@ def train(config):
     optimizer = optim.Adam(reward_model.parameters(), lr=LEARNING_RATE)
 
     reward_model, optimizer, train_dataloader = accelerator.prepare(reward_model, optimizer, train_dataloader)
-
-    reward_model.train()
+    train_loss = MeanMetric().to(device)
 
     for epoch in range(N_EPOCHS):
-        for batch_idx, batch in enumerate(tqdm(train_dataloader)):
+        for step, batch in enumerate(tqdm(train_dataloader)):
+            reward_model.train()
             optimizer.zero_grad()
 
             # TODO: batch should return as a dict
@@ -59,23 +60,41 @@ def train(config):
             accelerator.backward(loss)
             optimizer.step()
 
-            accelerator.print(f"Epoch {epoch}, batch {batch_idx}, loss {loss.item()}")
-            accelerator.gather_for_metrics({"loss": loss.detach()})
+            accelerator.print(f"Epoch {epoch}, step {step}, loss {loss.item()}")
+            loss_values = accelerator.gather_for_metrics({"loss": loss.detach()})
+            train_loss.update(loss_values["loss"])
+
+            if step > 0 and step % config["train"]["eval_interval"] == 0:
+                if config["wandb"]:
+                    current_step = epoch * len(train_dataloader) + step
+                    accelerator.log({
+                        "train_loss": train_loss.compute()
+                    }, step=current_step)
+                    train_loss.reset()
 
         accelerator.print(f"Epoch {epoch} finished")
 
     # for trackers
-    # accelerator.end_training()
+    accelerator.end_training()
 
 if __name__ == "__main__":
     parser = ArgumentParser()
 
     parser.add_argument("--config", type=str, default="configs/train_reward.yaml", help="A pretrained transformer")
-    # parser.add_argument("--data_path", type=str, default="CarperAI/openai_summarize_comparisons", help="HuggingFace dataset path")
-    # parser.add_argument("--n_epochs", type=int, default=1, help="The number of epochs for training")
-    # parser.add_argument("--learning_rate", type=float, default=1e-3, help="The learning rate for training")
 
     args = parser.parse_args()
     config = load_yaml(args.config)
 
-    train(config=config)
+    if config["wandb"]:
+        accelerator = Accelerator(log_with="wandb")
+
+        run_name = f"{config['experiment']['name']}__{config['experiment']['seed']}__{int(time.time())}"
+        accelerator.init_trackers(
+            # name=run_name,
+            project_name=config["wandb"]["project_name"],
+            config=config,
+        )
+    else:
+        accelerator = Accelerator()
+
+    train(accelerator, config)
