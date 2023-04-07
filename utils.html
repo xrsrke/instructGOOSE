@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.475">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>instruct_goose - Utility functions</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+<meta property="og:title" content="instruct_goose - Utility functions">
+<meta property="og:description" content="source">
+<meta property="og:site-name" content="instruct_goose">
+<meta name="twitter:title" content="instruct_goose - Utility functions">
+<meta name="twitter:description" content="source">
+<meta name="twitter:card" content="summary">
+</head>
+
+<body class="nav-sidebar floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">instruct_goose</span>
+    </a>
+  </div>
+          <div id="quarto-search" class="" title="Search"></div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title">Utility functions</h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">InstructGoose</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./dataset.html" class="sidebar-item-text sidebar-link">Dataset</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./agent.html" class="sidebar-item-text sidebar-link">Agent</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./reward_model.html" class="sidebar-item-text sidebar-link">Reward Model</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./tutorial_train_reward_model.html" class="sidebar-item-text sidebar-link">How to train a reward model?</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./trainer.html" class="sidebar-item-text sidebar-link">Trainer</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./utils.html" class="sidebar-item-text sidebar-link active">Utility functions</a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#load_yaml" id="toc-load_yaml" class="nav-link active" data-scroll-target="#load_yaml">load_yaml</a></li>
+  <li><a href="#rlhfconfig" id="toc-rlhfconfig" class="nav-link" data-scroll-target="#rlhfconfig">RLHFConfig</a></li>
+  <li><a href="#reference-model" id="toc-reference-model" class="nav-link" data-scroll-target="#reference-model">Reference Model</a></li>
+  <li><a href="#create_reference_model" id="toc-create_reference_model" class="nav-link" data-scroll-target="#create_reference_model">create_reference_model</a></li>
+  <li><a href="#configs" id="toc-configs" class="nav-link" data-scroll-target="#configs">Configs</a></li>
+  <li><a href="#modelconfig" id="toc-modelconfig" class="nav-link" data-scroll-target="#modelconfig">ModelConfig</a></li>
+  <li><a href="#tokenizerconfig" id="toc-tokenizerconfig" class="nav-link" data-scroll-target="#tokenizerconfig">TokenizerConfig</a></li>
+  <li><a href="#optimizerconfig" id="toc-optimizerconfig" class="nav-link" data-scroll-target="#optimizerconfig">OptimizerConfig</a></li>
+  <li><a href="#trainerconfig" id="toc-trainerconfig" class="nav-link" data-scroll-target="#trainerconfig">TrainerConfig</a></li>
+  <li><a href="#ppoconfig" id="toc-ppoconfig" class="nav-link" data-scroll-target="#ppoconfig">PPOConfig</a></li>
+  <li><a href="#instructconfig" id="toc-instructconfig" class="nav-link" data-scroll-target="#instructconfig">InstructConfig</a></li>
+  </ul>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/xrsrke/instructGOOSE/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title d-none d-lg-block">Utility functions</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<!-- WARNING: THIS FILE WAS AUTOGENERATED! DO NOT EDIT! -->
+<hr>
+<p><a href="https://github.com/xrsrke/instructGOOSE/blob/main/instruct_goose/utils.py#L14" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="load_yaml" class="level3">
+<h3 class="anchored" data-anchor-id="load_yaml">load_yaml</h3>
+<blockquote class="blockquote">
+<pre><code> load_yaml (config_path)</code></pre>
+</blockquote>
+<hr>
+<p><a href="https://github.com/xrsrke/instructGOOSE/blob/main/instruct_goose/utils.py#L20" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="rlhfconfig" class="level3">
+<h3 class="anchored" data-anchor-id="rlhfconfig">RLHFConfig</h3>
+<blockquote class="blockquote">
+<pre><code> RLHFConfig (epsilon:float=0.1, ent_coef:float=0.01, vf_coef:float=0.1)</code></pre>
+</blockquote>
+</section>
+<section id="reference-model" class="level3">
+<h3 class="anchored" data-anchor-id="reference-model">Reference Model</h3>
+<hr>
+<p><a href="https://github.com/xrsrke/instructGOOSE/blob/main/instruct_goose/utils.py#L28" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="create_reference_model" class="level3">
+<h3 class="anchored" data-anchor-id="create_reference_model">create_reference_model</h3>
+<blockquote class="blockquote">
+<pre><code> create_reference_model (model)</code></pre>
+</blockquote>
+</section>
+<section id="configs" class="level3">
+<h3 class="anchored" data-anchor-id="configs">Configs</h3>
+<hr>
+<p><a href="https://github.com/xrsrke/instructGOOSE/blob/main/instruct_goose/utils.py#L34" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="modelconfig" class="level3">
+<h3 class="anchored" data-anchor-id="modelconfig">ModelConfig</h3>
+<blockquote class="blockquote">
+<pre><code> ModelConfig (model_path:str)</code></pre>
+</blockquote>
+<hr>
+<p><a href="https://github.com/xrsrke/instructGOOSE/blob/main/instruct_goose/utils.py#L39" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="tokenizerconfig" class="level3">
+<h3 class="anchored" data-anchor-id="tokenizerconfig">TokenizerConfig</h3>
+<blockquote class="blockquote">
+<pre><code> TokenizerConfig (tokenizer_path:str)</code></pre>
+</blockquote>
+<hr>
+<p><a href="https://github.com/xrsrke/instructGOOSE/blob/main/instruct_goose/utils.py#L44" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="optimizerconfig" class="level3">
+<h3 class="anchored" data-anchor-id="optimizerconfig">OptimizerConfig</h3>
+<blockquote class="blockquote">
+<pre><code> OptimizerConfig (lr:float=0.0001, eps:float=1e-08,
+                  weight_decay:float=1e-06)</code></pre>
+</blockquote>
+<hr>
+<p><a href="https://github.com/xrsrke/instructGOOSE/blob/main/instruct_goose/utils.py#L51" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="trainerconfig" class="level3">
+<h3 class="anchored" data-anchor-id="trainerconfig">TrainerConfig</h3>
+<blockquote class="blockquote">
+<pre><code> TrainerConfig (epochs:int=20)</code></pre>
+</blockquote>
+<hr>
+<p><a href="https://github.com/xrsrke/instructGOOSE/blob/main/instruct_goose/utils.py#L56" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="ppoconfig" class="level3">
+<h3 class="anchored" data-anchor-id="ppoconfig">PPOConfig</h3>
+<blockquote class="blockquote">
+<pre><code> PPOConfig (ent_coef:float=0.01, vf_coef:float=0.5)</code></pre>
+</blockquote>
+<hr>
+<p><a href="https://github.com/xrsrke/instructGOOSE/blob/main/instruct_goose/utils.py#L62" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="instructconfig" class="level3">
+<h3 class="anchored" data-anchor-id="instructconfig">InstructConfig</h3>
+<blockquote class="blockquote">
+<pre><code> InstructConfig (model:__main__.ModelConfig,
+                 tokenizer:__main__.TokenizerConfig)</code></pre>
+</blockquote>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
