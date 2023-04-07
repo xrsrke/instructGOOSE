@@ -10,6 +10,7 @@ from copy import deepcopy
 from dataclasses import dataclass
 
 # %% ../nbs/05_utils.ipynb 4
+# TODO: rename to read yaml
 def load_yaml(config_path):
     with open(config_path, "r") as f:
         return yaml.safe_load(f)

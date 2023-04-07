@@ -18,6 +18,11 @@ def default_config():
 
 
 @pytest.fixture
+def device():
+    return "cpu"
+
+
+@pytest.fixture
 def tokenizer(default_config):
     tokenizer_path = default_config["model"]["tokenizer_path"]
     return AutoTokenizer.from_pretrained(tokenizer_path)

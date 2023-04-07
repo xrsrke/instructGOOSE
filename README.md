@@ -15,7 +15,7 @@ Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.
 Paper: InstructGPT - [Training language models to follow instructions
 with human feedback](https://arxiv.org/abs/2203.02155)
 
-![image.png](index_files/figure-commonmark/bca1bd5f-1-image.png)
+![image.png](index_files/figure-commonmark/f62c5bc7-1-image.png)
 
 ## Install
 
@@ -31,6 +31,15 @@ Install directly from the source code
 git clone https://github.com/xrsrke/instructGOOSE.git
 cd instructGOOSE
 pip install -e .
+```
+
+### How to Train
+
+Use 🤗 Accelerate to distribute training of a reward model
+
+``` bash
+accelerate config
+accelerate launch scripts/train_reward.py
 ```
 
 ## Train the RL-based language model
@@ -136,6 +145,8 @@ for epoch in range(N_EPOCH):
 - Add support custom value function
 - Add support non-transformer models
 - Write config class
+
+✅ Distributed training using 🤗 Accelerate
 
 ## Resources
 

@@ -3,9 +3,9 @@ import torch
 from instruct_goose.reward import PairwiseLoss, RewardModel
 
 
-def test_reward_model(default_config, reward_tokenizer):
-    checkpoint = default_config["reward_model"]["model_path"]
-    reward_model = RewardModel(checkpoint)
+def test_reward_model(default_config, reward_tokenizer, device):
+    model_name = default_config["reward_model"]["model_path"]
+    reward_model = RewardModel(model_name, device=device)
 
     prompts = ["this is suppose to be a bad text", "this is suppose to be a good text"]
 
@@ -14,8 +14,8 @@ def test_reward_model(default_config, reward_tokenizer):
     )
 
     rewards = reward_model(
-        input_ids=inputs["input_ids"],
-        attention_mask=inputs["attention_mask"],
+        input_ids=inputs["input_ids"].to(device),
+        attention_mask=inputs["attention_mask"].to(device),
     )
 
     assert len(rewards) == len(prompts)

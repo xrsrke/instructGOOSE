@@ -13,21 +13,24 @@ from torchtyping import TensorType
 class RewardModel(nn.Module):
     """Reward model."""
     def __init__(
-        self, checkpoint: str, # `transformers`'s model path
-        dropout: float = 0.1
+        self,
+        model_name: str, # `transformers`'s model name
+        dropout: float = 0.1,
+        device: str = 'cuda'
     ):
         super().__init__()
-        self.model = AutoModel.from_pretrained(checkpoint)
 
-        config = self.model.config
+        model = AutoModel.from_pretrained(model_name)
+        config = model.config
         n_embed = config.n_embd
 
+        self.model = model
         # custom head
         self.reward_head = nn.Sequential(
             nn.Dropout(dropout),
             nn.Linear(n_embed, 1),
             nn.Sigmoid()
-        )
+        ).to(device)
 
     def forward(
         self,
@@ -45,7 +48,6 @@ class RewardModel(nn.Module):
         # for each item in the batch
         # choose the hidden state of the last token as a reward!
         reward_scalar = output[:, -1, 0]
-
         return reward_scalar
 
 # %% ../nbs/03_reward_model.ipynb 10
